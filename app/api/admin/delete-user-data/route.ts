@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@/lib/session";
 import db from "@/lib/db";
 
-// Deletes all answer rows for a given user. Admin-only.
-// Intended for clearing the software-test account ("tester1") between runs.
 export async function POST(req: NextRequest) {
   const me = await currentUser();
   if (!me || me.role !== "admin") {
@@ -14,6 +12,9 @@ export async function POST(req: NextRequest) {
   if (!target) {
     return NextResponse.json({ ok: false, error: "Missing userId." }, { status: 400 });
   }
-  const info = db.prepare("DELETE FROM answers WHERE user_id = ?").run(target);
-  return NextResponse.json({ ok: true, deleted: info.changes ?? 0 });
+  const info = await db.execute({
+    sql: "DELETE FROM answers WHERE user_id = ?",
+    args: [target],
+  });
+  return NextResponse.json({ ok: true, deleted: info.rowsAffected ?? 0 });
 }

@@ -34,7 +34,7 @@ export default async function StudyPage({
 
   const sp = await searchParams;
   const seed = makeSeed(user.id);
-  const remaining = remainingShuffled(user.id, VIDEO_ORDER, seed);
+  const remaining = await remainingShuffled(user.id, VIDEO_ORDER, seed);
   const next = remaining.length > 0 ? remaining[0] : null;
 
   // All videos complete -> completion screen.
@@ -54,14 +54,14 @@ export default async function StudyPage({
   }
 
   // Show instructions before the very first video (nothing answered yet) unless ?start=1.
-  const done = completedCount(user.id);
-  const startingFresh = done === 0 && !videoState(user.id, next).hasInitial;
+  const done = await completedCount(user.id);
+  const startingFresh = done === 0 && !(await videoState(user.id, next)).hasInitial;
   if (startingFresh && sp.start !== "1") {
     return <Instructions />;
   }
 
   const video = getVideo(next)!;
-  const st = videoState(user.id, next);
+  const st = await videoState(user.id, next);
   // Determine resume step within this video.
   let startStep: "initial" | "final" | "otolith" | "maneuver" = "initial";
   if (st.hasOtolith) startStep = "maneuver";
@@ -70,7 +70,7 @@ export default async function StudyPage({
 
   // Progress counter: completed-so-far + 1 (this video), out of total.
   const seq = done + 1;
-  const row = getRow(user.id, next);
+  const row = await getRow(user.id, next);
   const prior = {
     initialClassification: row?.initial_classification ?? null,
     finalClassification: row?.final_classification ?? null,

@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@/lib/session";
-import {
-  saveInitial,
-  saveFinal,
-  saveOtolith,
-  saveManeuver,
-} from "@/lib/db";
+import { saveInitial, saveFinal, saveOtolith, saveManeuver } from "@/lib/db";
 import { getVideo } from "@/lib/videos";
-import {
-  NYSTAGMUS_OPTIONS,
-  OTOLITH_OPTIONS,
-  MANEUVER_OPTIONS,
-  MAX_REPLAYS,
-} from "@/lib/options";
+import { NYSTAGMUS_OPTIONS, OTOLITH_OPTIONS, MANEUVER_OPTIONS, MAX_REPLAYS } from "@/lib/options";
 
 function clampConf(n: unknown): number {
   const v = Math.round(Number(n));
@@ -34,8 +24,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Unknown video." }, { status: 400 });
   }
 
-  // Server computes elapsed time from the client-sent start timestamp.
-  // Cannot be edited after the fact in dev tools beyond the round trip.
   const elapsed = (startedAt: unknown): number => {
     const start = Number(startedAt);
     if (!start || Number.isNaN(start)) return 0;
@@ -46,12 +34,9 @@ export async function POST(req: NextRequest) {
     if (!NYSTAGMUS_OPTIONS.includes(body.classification)) {
       return NextResponse.json({ ok: false, error: "Invalid classification." }, { status: 400 });
     }
-    const r = saveInitial({
-      userId: user.id,
-      videoId: vid,
-      videoPosition: video.position,
-      classification: body.classification,
-      confidence: clampConf(body.confidence),
+    const r = await saveInitial({
+      userId: user.id, videoId: vid, videoPosition: video.position,
+      classification: body.classification, confidence: clampConf(body.confidence),
       responseTime: elapsed(body.startedAt),
     });
     return NextResponse.json(r);
@@ -62,14 +47,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Invalid classification." }, { status: 400 });
     }
     const replays = Math.min(MAX_REPLAYS, Math.max(0, Number(body.replayCount) || 0));
-    const r = saveFinal({
-      userId: user.id,
-      videoId: vid,
-      classification: body.classification,
-      confidence: clampConf(body.confidence),
-      replayCount: replays,
-      finalResponseTime: elapsed(body.startedAt),
-      uncertain: !!body.uncertain,
+    const r = await saveFinal({
+      userId: user.id, videoId: vid, classification: body.classification,
+      confidence: clampConf(body.confidence), replayCount: replays,
+      finalResponseTime: elapsed(body.startedAt), uncertain: !!body.uncertain,
     });
     return NextResponse.json(r);
   }
@@ -78,32 +59,23 @@ export async function POST(req: NextRequest) {
     if (!OTOLITH_OPTIONS.includes(body.answer)) {
       return NextResponse.json({ ok: false, error: "Invalid otolith answer." }, { status: 400 });
     }
-    const r = saveOtolith({
-      userId: user.id,
-      videoId: vid,
-      answer: body.answer,
-      confidence: clampConf(body.confidence),
-      responseTime: elapsed(body.startedAt),
+    const r = await saveOtolith({
+      userId: user.id, videoId: vid, answer: body.answer,
+      confidence: clampConf(body.confidence), responseTime: elapsed(body.startedAt),
     });
     return NextResponse.json(r);
   }
 
   if (step === "maneuver") {
-    const parts = String(body.answer || "")
-      .split(";")
-      .map((p: string) => p.trim())
-      .filter(Boolean);
+    const parts = String(body.answer || "").split(";").map((p: string) => p.trim()).filter(Boolean);
     const valid = parts.length >= 1 && parts.length <= 2 &&
       parts.every((p: string) => MANEUVER_OPTIONS.includes(p));
     if (!valid) {
       return NextResponse.json({ ok: false, error: "Invalid maneuver answer." }, { status: 400 });
     }
-    const r = saveManeuver({
-      userId: user.id,
-      videoId: vid,
-      answer: parts.join("; "),
-      confidence: clampConf(body.confidence),
-      responseTime: elapsed(body.startedAt),
+    const r = await saveManeuver({
+      userId: user.id, videoId: vid, answer: parts.join("; "),
+      confidence: clampConf(body.confidence), responseTime: elapsed(body.startedAt),
     });
     return NextResponse.json(r);
   }
