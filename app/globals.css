@@ -1,0 +1,58 @@
+:root {
+  --bg: #ffffff;
+  --bg-elev: #f5f7fa;
+  --bg-card: #ffffff;
+  --line: #d8dee6;
+  --line-soft: #e8ecf1;
+  --ink: #1a2330;
+  --ink-dim: #5a6b7d;
+  --ink-faint: #8b9aac;
+  --accent: #0d9488;       /* teal — readable on white */
+  --accent-dim: #14b8a6;
+  --warn: #b45309;
+  --danger: #dc2626;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(13, 148, 136, 0.04), transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(13, 148, 136, 0.03), transparent 45%);
+}
+
+h1, h2, h3 { font-family: var(--font-display), serif; font-weight: 600; letter-spacing: -0.01em; }
+
+.mono { font-family: var(--font-mono), monospace; }
+
+a { color: var(--accent); text-decoration: none; }
+
+button { font-family: var(--font-body), sans-serif; cursor: pointer; }
+
+input, select {
+  font-family: var(--font-body), sans-serif;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 15px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+/* Card surfaces get a subtle shadow on white instead of relying on dark contrast */
