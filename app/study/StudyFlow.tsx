@@ -286,7 +286,7 @@ export default function StudyFlow({
           )}
 
           {step === "maneuver" && (
-            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." titleLink="Question 1C:" heading="Question 1C: Treatment Maneuver (Choose 2 techniques)" headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You may select up to two.">
+            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." titleLink="Question 1C:" heading="Question 1C: Treatment Maneuver (Choose 2 techniques)" headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
               <CheckGroup
                 name="man"
                 options={MANEUVER_OPTIONS}

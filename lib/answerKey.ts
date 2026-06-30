@@ -17,20 +17,30 @@ export interface AnswerKeyEntry {
 export const OTOLITH_MULTI_VIDEOS = new Set<string>(["8D"]);
 export const MAX_OTOLITH_MULTI = 2;
 
+// Videos where 1c is scored by maneuver FAMILY (direction-agnostic): ANY
+// BBQ Roll, ANY Appiani, ANY Casani each count as correct, regardless of
+// Left/Right. 1 point per distinct correct family picked, max 2 (no penalty).
+export const MANEUVER_FAMILY_VIDEOS = new Set<string>(["27RHN", "21LHN", "26RHN"]);
+
+// Strip a trailing " Left"/" Right" so e.g. "Appiani Maneuver Left" -> "appiani maneuver".
+function maneuverFamily(s: string): string {
+  return s.replace(/\s+(left|right)\s*$/i, "").trim().toLowerCase();
+}
+
 export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
   "16UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Canal (PC): Left", c: ["Epley Maneuver Left", "Semont Maneuver Left"] },
-  "27RHN": { a: "Right-beating", b: "Horizontal Canal (HC): Right", c: ["BBQ Roll (Lempert) Right", "Appiani Maneuver Left"] },
+  "27RHN": { a: "Right-beating", b: "Horizontal Canal (HC): Right", c: ["BBQ Roll (Lempert) Right", "Appiani Maneuver Left", "Casani Maneuver Left"] },
   "5D": { a: "Down-beating Torsional Counter Clockwise", b: "Anterior Canal (AC): Left", c: ["Yacovino Maneuver", "Reverse Semont Maneuver Left"] },
   "22LHN": { a: "Left-beating", b: "Horizontal Cupula (HC): Right", c: ["Gufoni Maneuver Right", "Kim Maneuver Right"] },
   "10UCC": { a: "Up-beating Torsional Counter Clockwise", b: "Posterior Canal (PC): Right", c: ["Epley Maneuver Right", "Semont Maneuver Right"] },
   "8D": { a: "Down-beating Torsional Clockwise", b: "Anterior Canal (AC): Right", bMulti: ["Anterior Canal (AC): Right", "Short Arm Posterior Canal (PC): Right"], c: ["Yacovino Maneuver", "Demi-Semont Right"] },
-  "21LHN": { a: "Left-beating", b: "Horizontal Canal (HC): Left", c: ["BBQ Roll (Lempert) Left"] },
+  "21LHN": { a: "Left-beating", b: "Horizontal Canal (HC): Left", c: ["BBQ Roll (Lempert) Left", "Appiani Maneuver Left", "Casani Maneuver Left"] },
   "28UCC": { a: "Up-beating Torsional Counter Clockwise", b: "Posterior Cupula (PC): Right", c: ["Semont Maneuver Right", "Head Shakes / Mastoid Vibration"] },
-  "1D": { a: "Down-beating Non-Torsional", b: "Anterior Cupula (AC): Left", c: ["Yacovino Maneuver", "Reverse Semont Maneuver Left"] },
+  "1D": { a: "Down-beating Non-Torsional", b: "Anterior Canal (AC): Left", c: ["Yacovino Maneuver", "Reverse Semont Maneuver Left"] },
   "14UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Cupula (PC): Left", c: ["Semont Maneuver Left", "Head Shakes / Mastoid Vibration"] },
   "17LHN": { a: "Left-beating", b: "Horizontal Canal (HC): Left", c: ["BBQ Roll (Lempert) Left", "Casani Maneuver Left"] },
   "8UCC": { a: "Up-beating Torsional Counter Clockwise", b: "Posterior Canal (PC): Right", c: ["Epley Maneuver Right", "Semont Maneuver Right"] },
-  "2D": { a: "Down-beating Non-Torsional", b: "Anterior Cupula (AC): Left", c: ["Reverse Semont Maneuver Left", "Yacovino Maneuver"] },
+  "2D": { a: "Down-beating Non-Torsional", b: "Anterior Canal (AC): Left", c: ["Reverse Semont Maneuver Left", "Yacovino Maneuver"] },
   "23LHN": { a: "Right-beating", b: "Horizontal Cupula (HC): Left", c: ["Gufoni Maneuver Left", "Kim Maneuver Left"] },
   "3D": { a: "Down-beating Non-Torsional", b: "Anterior Cupula (AC): Right", c: ["Reverse Semont Maneuver Right", "Head Shakes / Mastoid Vibration"] },
   "13UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Canal (PC): Left", c: ["Epley Maneuver Left", "Semont Maneuver Left"] },
@@ -39,7 +49,7 @@ export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
   "24RHN": { a: "Right-beating", b: "Horizontal Cupula (HC): Right", c: ["Kim Maneuver Right", "Gufoni Maneuver Right"] },
   "15UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Cupula (PC): Left", c: ["Reverse Semont Maneuver Left", "Head Shakes / Mastoid Vibration"] },
   "18LHN": { a: "Left-beating", b: "Horizontal Canal (HC): Left", c: ["BBQ Roll (Lempert) Left", "Casani Maneuver Left"] },
-  "26RHN": { a: "Right-beating", b: "Horizontal Canal (HC): Right", c: ["BBQ Roll (Lempert) Right"] },
+  "26RHN": { a: "Right-beating", b: "Horizontal Canal (HC): Right", c: ["BBQ Roll (Lempert) Right", "Appiani Maneuver Right", "Casani Maneuver Right"] },
   "32UCC": { a: "Up-beating Torsional Counter Clockwise", b: "Posterior Cupula (PC): Right", c: ["Semont Maneuver Right", "Head Shakes / Mastoid Vibration"] },
   "6D": { a: "Down-beating Non-Torsional", b: "Anterior Canal (AC): Right", c: ["Yacovino Maneuver", "Reverse Semont Maneuver Right"] },
   "29UCC": { a: "Up-beating Torsional Counter Clockwise ", b: "Posterior Canal (PC): Right", c: ["Epley Maneuver Right", "Semont Maneuver Right"] },
@@ -115,18 +125,22 @@ export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
     const k = ANSWER_KEY[videoId];
     if (!k) return null;
     if (!maneuverAnswer) return 0;
-    const given = maneuverAnswer.split(";").map(norm).filter(Boolean);
-    const correct = new Set(k.c.map(norm).filter(Boolean));
-    // 1 point for each given maneuver that is in the correct set (no double count).
+    const given = maneuverAnswer.split(";").map((x) => x.trim()).filter(Boolean);
+    const familyMode = MANEUVER_FAMILY_VIDEOS.has(videoId);
+    // Build the correct-key set in the chosen matching mode.
+    const correct = new Set(
+      k.c.map((x) => (familyMode ? maneuverFamily(x) : norm(x))).filter(Boolean)
+    );
     const seen = new Set<string>();
     let pts = 0;
     for (const g of given) {
-      if (correct.has(g) && !seen.has(g)) {
+      const key = familyMode ? maneuverFamily(g) : norm(g);
+      if (correct.has(key) && !seen.has(key)) {
         pts += 1;
-        seen.add(g);
+        seen.add(key);
       }
     }
-    return Math.min(2, pts);
+    return Math.min(2, pts); // still max 2 points
   }
  
   // Max points available for a video (depends on how many correct answers exist).
@@ -143,6 +157,9 @@ export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
   export function isManeuverInKey(videoId: string, oneManeuver: string): boolean | null {
     const k = ANSWER_KEY[videoId];
     if (!k) return null;
-    const correct = new Set(k.c.map(norm).filter(Boolean));
-    return correct.has(norm(oneManeuver));
+    const familyMode = MANEUVER_FAMILY_VIDEOS.has(videoId);
+    const correct = new Set(
+      k.c.map((x) => (familyMode ? maneuverFamily(x) : norm(x))).filter(Boolean)
+    );
+    return correct.has(familyMode ? maneuverFamily(oneManeuver) : norm(oneManeuver));
   }
