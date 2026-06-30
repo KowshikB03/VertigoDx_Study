@@ -16,17 +16,18 @@ export default function LogoutButton({ locked = false }: { locked?: boolean }) {
           : "Sign out"
       }
       style={{
-        background: "transparent",
-        border: `1px solid ${locked ? "var(--line)" : "var(--line)"}`,
-        color: locked ? "var(--ink-faint)" : "var(--ink-dim)",
+        background: locked ? "#fca5a5" : "#dc2626",
+        border: "none",
+        color: "#fff",
         borderRadius: 8,
-        padding: "9px 16px",
+        padding: "9px 18px",
         fontSize: 13,
+        fontWeight: 600,
         cursor: locked ? "not-allowed" : "pointer",
-        opacity: locked ? 0.55 : 1,
+        opacity: locked ? 0.7 : 1,
       }}
     >
-      Sign out
+      Sign Out
     </button>
   );
 }

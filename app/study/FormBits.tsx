@@ -71,9 +71,10 @@ export function ConfidenceSlider({
         type="range"
         min={0}
         max={100}
+        step={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: "100%", accentColor: "#2dd4bf", padding: 0 }}
+        style={{ width: "100%", accentColor: "#0d9488", padding: 0 }}
       />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ink-faint)" }}>
         <span>0 — Not at all sure</span>

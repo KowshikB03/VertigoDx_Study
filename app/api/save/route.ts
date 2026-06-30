@@ -5,7 +5,7 @@ import { getVideo } from "@/lib/videos";
 import { NYSTAGMUS_OPTIONS, OTOLITH_OPTIONS, MANEUVER_OPTIONS, MAX_REPLAYS } from "@/lib/options";
 
 function clampConf(n: unknown): number {
-  const v = Math.round(Number(n));
+  const v = Math.round(Number(n) / 5) * 5; // snap to nearest 5
   if (Number.isNaN(v)) return 0;
   return Math.min(100, Math.max(0, v));
 }

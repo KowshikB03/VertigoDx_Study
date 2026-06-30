@@ -209,12 +209,20 @@ export default function StudyFlow({
           <span className="mono" style={s.pid}>PARTICIPANT: {participantId}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div className="mono" style={s.counter}>
+          <div style={s.counter}>
             {demo ? "Demo video" : `Video ${sequenceNumber} of ${totalVideos}`}
           </div>
           <LogoutButton locked={videoLocked} />
         </div>
       </header>
+
+      {/* Legend: test flow & timing summary */}
+      <TestFlowLegend />
+
+      {/* Second counter between legend and video */}
+      <div style={s.counterCenter}>
+        {demo ? "Demo video" : `Video ${sequenceNumber} of ${totalVideos}`}
+      </div>
 
       <div style={s.grid}>
         {/* Video */}
@@ -241,25 +249,25 @@ export default function StudyFlow({
           <StepDots step={step} />
 
           {step === "initial" && (
-            <Section title="Initial Classification" subtitle="Watch the video once, then submit your first impression. Replays unlock afterward.">
+            <QuestionBlock qid="A" qLabel="Initial Classification" qSub="Watch the video and provide your initial nystagmus classification." titleLink="Question 1A:">
               <RadioGroup name="init" options={NYSTAGMUS_OPTIONS} value={initClass} onChange={setInitClass} />
               <ConfidenceSlider value={initConf} onChange={setInitConf} />
               <ErrLine err={err} />
               <PrimaryBtn busy={busy} onClick={submitInitial}>Submit Initial Answer</PrimaryBtn>
-            </Section>
+            </QuestionBlock>
           )}
 
           {step === "final" && (
-            <Section title="Final Classification" subtitle={`You may replay up to ${MAX_REPLAYS} times, then confirm or revise.`}>
+            <QuestionBlock qid="A" qLabel="Final Classification (Submit)" qSub={`Review and modify your answer if needed. You may replay up to ${MAX_REPLAYS} times.`} titleLink="Question 1A:" heading="Keep or change Answer 1A to be your FINAL answer:">
               <RadioGroup name="final" options={NYSTAGMUS_OPTIONS} value={finalClass} onChange={setFinalClass} />
               <ConfidenceSlider value={finalConf} onChange={setFinalConf} />
               <ErrLine err={err} />
               <PrimaryBtn busy={busy} onClick={submitFinal}>Submit and Proceed to Next Question</PrimaryBtn>
-            </Section>
+            </QuestionBlock>
           )}
 
           {step === "otolith" && (
-            <Section title="Otolith Location" subtitle={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?${isMultiOtolith ? " You may select up to two." : ""}`}>
+            <QuestionBlock qid="B" qLabel="Diagnosis: Otolith Location" qSub="Identify the affected otolith location." titleLink="Question 1B:" heading={`Question 1B - Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
               {isMultiOtolith ? (
                 <CheckGroup
                   name="oto"
@@ -274,11 +282,11 @@ export default function StudyFlow({
               <ConfidenceSlider value={otolithConf} onChange={setOtolithConf} />
               <ErrLine err={err} />
               <PrimaryBtn busy={busy} onClick={submitOtolith}>Submit Otolith Location</PrimaryBtn>
-            </Section>
+            </QuestionBlock>
           )}
 
           {step === "maneuver" && (
-            <Section title="Treatment Maneuver" subtitle="Based on the otolith location, what is the most appropriate treatment maneuver? You may select up to two.">
+            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." titleLink="Question 1C:" heading="Question 1C: Treatment Maneuver (Choose 2 techniques)" headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You may select up to two.">
               <CheckGroup
                 name="man"
                 options={MANEUVER_OPTIONS}
@@ -295,7 +303,7 @@ export default function StudyFlow({
                   ? "Submit & Finish Study"
                   : "Submit & Go to Next Video"}
               </PrimaryBtn>
-            </Section>
+            </QuestionBlock>
           )}
         </div>
       </div>
@@ -349,26 +357,27 @@ function ClinicalInfo({ details, fallbackPosition }: { details: VideoDetails | n
 }
 
 // ---- Prior-answer summary box ----
+// Colors per request: 1a answer = blue, 1b answer = green, 1c context = red/pink.
 function PriorSummary({
   step, initClass, finalClass, otolith,
 }: { step: Step; initClass: string | null; finalClass: string | null; otolith: string | null }) {
-  const items: { label: string; value: string | null }[] = [];
+  const items: { label: string; value: string | null; color: string }[] = [];
   if (step === "final") {
-    items.push({ label: "Your initial 1a answer", value: initClass });
+    items.push({ label: "Your INITIAL 1a NYSTAGMUS answer:", value: initClass, color: "#1d4ed8" });
   } else if (step === "otolith") {
-    items.push({ label: "Your final 1a answer", value: finalClass });
+    items.push({ label: "Your INITIAL 1a NYSTAGMUS answer:", value: finalClass, color: "#1d4ed8" });
   } else if (step === "maneuver") {
-    items.push({ label: "Your final 1a answer", value: finalClass });
-    items.push({ label: "Your 1b otolith answer", value: otolith });
+    items.push({ label: "Your FINAL 1A NYSTAGMUS Answer:", value: finalClass, color: "#1d4ed8" });
+    items.push({ label: "Your 1B DIAGNOSIS Answer:", value: otolith, color: "#15803d" });
   }
   if (items.length === 0) return null;
 
   return (
     <div style={s.summary}>
       {items.map((it) => (
-        <div key={it.label} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "baseline" }}>
-          <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>{it.label}:</span>
-          <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}>{it.value || "—"}</span>
+        <div key={it.label} style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
+          <span style={{ fontSize: 13, color: "var(--ink-dim)", fontWeight: 500 }}>{it.label}</span>
+          <span style={{ fontSize: 14.5, fontWeight: 700, color: it.color }}>{it.value || "—"}</span>
         </div>
       ))}
     </div>
@@ -417,14 +426,111 @@ function CheckGroup({
   );
 }
 
-function Section({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+// Colors for the QUESTION A / B / C theme (badge + headers).
+const Q_THEME: Record<string, { bg: string; text: string }> = {
+  A: { bg: "#1d4ed8", text: "#1d4ed8" }, // blue
+  B: { bg: "#15803d", text: "#15803d" }, // green
+  C: { bg: "#7c3aed", text: "#7c3aed" }, // purple
+};
+
+// A question step: shows the colored QUESTION badge card, a purple "Question 1X:"
+// link-style title, an optional bold heading + sub, then the inputs.
+function QuestionBlock({
+  qid, qLabel, qSub, titleLink, heading, headingSub, children,
+}: {
+  qid: "A" | "B" | "C";
+  qLabel: string;
+  qSub: string;
+  titleLink: string;
+  heading?: string;
+  headingSub?: string;
+  children: React.ReactNode;
+}) {
+  const theme = Q_THEME[qid];
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div>
-        <h2 style={{ fontSize: 21, marginBottom: 6 }}>{title}</h2>
-        <p style={{ color: "var(--ink-dim)", fontSize: 13.5, lineHeight: 1.5 }}>{subtitle}</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      {/* Title link + badge card row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
+        <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 16, textDecoration: "underline" }}>
+          {titleLink}
+        </span>
+        <div style={{
+          border: `2px solid ${theme.bg}`, borderRadius: 12, overflow: "hidden",
+          minWidth: 180, textAlign: "center", background: "#fff",
+        }}>
+          <div style={{ background: theme.bg, color: "#fff", fontWeight: 700, fontSize: 12.5, padding: "5px 10px", letterSpacing: "0.04em" }}>
+            QUESTION {qid}
+          </div>
+          <div style={{ padding: "10px 12px" }}>
+            <div style={{ color: theme.text, fontWeight: 700, fontSize: 13.5, marginBottom: 4 }}>{qLabel}</div>
+            <div style={{ color: "var(--ink-dim)", fontSize: 11.5, lineHeight: 1.4 }}>{qSub}</div>
+          </div>
+        </div>
       </div>
+
+      {/* Optional bold heading (purple) + sub */}
+      {heading && (
+        <div>
+          <h2 style={{ fontSize: 18, color: "#7c3aed", textDecoration: "underline", marginBottom: 6 }}>{heading}</h2>
+          {headingSub && <p style={{ color: "var(--ink-dim)", fontSize: 13, lineHeight: 1.5 }}>{headingSub}</p>}
+        </div>
+      )}
+
       {children}
+    </div>
+  );
+}
+
+// The "TEST FLOW & TIMING SUMMARY" legend shown above the video.
+function TestFlowLegend() {
+  const cards: { id: "A" | "B" | "C"; title: string; sub: string }[] = [
+    { id: "A", title: "Initial Classification", sub: "Watch the video and provide your initial nystagmus classification." },
+    { id: "A", title: "Final Classification (Submit)", sub: "Review and modify your answer if needed. Click SUBMIT FINAL ANSWER to finalize." },
+    { id: "B", title: "Diagnosis: Otolith Location", sub: "Identify the affected otolith location." },
+    { id: "C", title: "Treatment Maneuver", sub: "Select the most appropriate treatment maneuver." },
+  ];
+  return (
+    <div style={s.legend}>
+      <div style={s.legendTitle}>TEST FLOW &amp; TIMING SUMMARY</div>
+      <div style={s.legendTiming}>
+        <strong style={{ color: "#1d4ed8" }}>TIMING IS MEASURED:</strong> From pressing <strong>PLAY</strong> when starting the video for Question A, and ends when you click <strong>SUBMIT FINAL ANSWER</strong>.
+      </div>
+      <div style={s.legendCards}>
+        {cards.map((c, i) => {
+          const theme = Q_THEME[c.id];
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{
+                flex: 1, border: `1.5px solid ${theme.bg}`, borderRadius: 10, overflow: "hidden",
+                background: "#fff", minWidth: 0,
+              }}>
+                <div style={{ background: theme.bg, color: "#fff", fontWeight: 700, fontSize: 10.5, padding: "4px 8px", textAlign: "center", letterSpacing: "0.04em" }}>
+                  QUESTION {c.id}
+                </div>
+                <div style={{ padding: "8px 10px" }}>
+                  <div style={{ color: theme.text, fontWeight: 700, fontSize: 11.5, marginBottom: 3, textAlign: "center" }}>{c.title}</div>
+                  <div style={{ color: "var(--ink-dim)", fontSize: 10, lineHeight: 1.35, textAlign: "center" }}>{c.sub}</div>
+                </div>
+              </div>
+              {i < cards.length - 1 && <span style={{ color: "var(--ink-faint)", fontSize: 16 }}>→</span>}
+            </div>
+          );
+        })}
+      </div>
+      <div style={s.legendKey}>
+        <LegendKey color="#1d4ed8" text="Question A: Nystagmus Classification (Initial and Final)" />
+        <LegendKey color="#15803d" text="Question B: Diagnosis: Otolith Location" />
+        <LegendKey color="#7c3aed" text="Question C: Treatment Maneuver" />
+      </div>
+    </div>
+  );
+}
+
+function LegendKey({ color, text }: { color: string; text: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ width: 12, height: 12, borderRadius: 3, background: color, display: "inline-block" }} />
+      <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{text}</span>
     </div>
   );
 }
@@ -466,7 +572,19 @@ const s: Record<string, React.CSSProperties> = {
   page: { maxWidth: 820, margin: "0 auto", padding: "24px 28px" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 18, borderBottom: "1px solid var(--line)", marginBottom: 28 },
   pid: { fontSize: 11, letterSpacing: "0.14em", color: "var(--ink-faint)" },
-  counter: { fontSize: 13, color: "var(--accent)", letterSpacing: "0.06em" },
+  counter: { fontSize: 16, color: "#0d9488", fontWeight: 700, letterSpacing: "0.02em" },
+  counterCenter: { fontSize: 18, color: "#0d9488", fontWeight: 700, textAlign: "center", margin: "4px 0 18px" },
+  legend: {
+    border: "1px solid var(--line)", borderRadius: 14, padding: "18px 22px",
+    marginBottom: 22, background: "#fff", display: "flex", flexDirection: "column", gap: 14,
+  },
+  legendTitle: { textAlign: "center", fontWeight: 800, fontSize: 16, letterSpacing: "0.03em", color: "#1a1530" },
+  legendTiming: {
+    background: "#eff4ff", border: "1px solid #d6e0fb", borderRadius: 8,
+    padding: "10px 14px", fontSize: 12.5, lineHeight: 1.5, color: "#33405e",
+  },
+  legendCards: { display: "flex", alignItems: "stretch", gap: 4, flexWrap: "wrap" },
+  legendKey: { display: "flex", gap: 18, flexWrap: "wrap", paddingTop: 4, borderTop: "1px solid var(--line-soft)", justifyContent: "center" },
   grid: { display: "flex", flexDirection: "column", gap: 24, alignItems: "stretch" },
   left: { display: "flex", flexDirection: "column", alignItems: "center", gap: 14 },
   posTag: { fontSize: 13, color: "var(--accent)", fontFamily: "var(--font-mono), monospace", letterSpacing: "0.04em", fontWeight: 500 },
