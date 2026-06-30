@@ -13,6 +13,7 @@ import {
   MANEUVER_OPTIONS,
   MAX_REPLAYS,
 } from "@/lib/options";
+import { OTOLITH_MULTI_VIDEOS, MAX_OTOLITH_MULTI } from "@/lib/answerKey";
 
 type Step = "initial" | "final" | "otolith" | "maneuver";
 
@@ -73,6 +74,13 @@ export default function StudyFlow({
   const [finalConf, setFinalConf] = useState(50);
   const [otolith, setOtolith] = useState<string | null>(prior.otolithAnswer);
   const [otolithConf, setOtolithConf] = useState(50);
+  // 8D-style multi-select 1b: seed from prior (stored as "; " joined string).
+  const isMultiOtolith = OTOLITH_MULTI_VIDEOS.has(videoId);
+  const [otolithMulti, setOtolithMulti] = useState<string[]>(
+    prior.otolithAnswer && isMultiOtolith
+      ? prior.otolithAnswer.split(";").map((x) => x.trim()).filter(Boolean)
+      : []
+  );
   const [maneuvers, setManeuvers] = useState<string[]>([]); // up to 2
   const [maneuverConf, setManeuverConf] = useState(50);
 
@@ -150,11 +158,24 @@ export default function StudyFlow({
     if (ok) { setErr(""); setStep("otolith"); }
   }
 
+  function toggleOtolithMulti(opt: string) {
+    setOtolithMulti((cur) => {
+      if (cur.includes(opt)) return cur.filter((m) => m !== opt);
+      if (cur.length >= MAX_OTOLITH_MULTI) return cur; // cap at 2
+      return [...cur, opt];
+    });
+  }
+
   async function submitOtolith() {
-    if (!otolith) { setErr("Select an otolith location."); return; }
+    const answer = isMultiOtolith ? otolithMulti.join("; ") : otolith;
+    if (isMultiOtolith) {
+      if (otolithMulti.length === 0) { setErr("Select at least one otolith location."); return; }
+    } else {
+      if (!otolith) { setErr("Select an otolith location."); return; }
+    }
     const ok = await post({
       step: "otolith",
-      answer: otolith,
+      answer,
       confidence: otolithConf,
       startedAt: stepStart.current,
     });
@@ -238,8 +259,18 @@ export default function StudyFlow({
           )}
 
           {step === "otolith" && (
-            <Section title="Otolith Location" subtitle={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
-              <RadioGroup name="oto" options={OTOLITH_OPTIONS} value={otolith} onChange={setOtolith} />
+            <Section title="Otolith Location" subtitle={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?${isMultiOtolith ? " You may select up to two." : ""}`}>
+              {isMultiOtolith ? (
+                <CheckGroup
+                  name="oto"
+                  options={OTOLITH_OPTIONS}
+                  selected={otolithMulti}
+                  onToggle={toggleOtolithMulti}
+                  max={MAX_OTOLITH_MULTI}
+                />
+              ) : (
+                <RadioGroup name="oto" options={OTOLITH_OPTIONS} value={otolith} onChange={setOtolith} />
+              )}
               <ConfidenceSlider value={otolithConf} onChange={setOtolithConf} />
               <ErrLine err={err} />
               <PrimaryBtn busy={busy} onClick={submitOtolith}>Submit Otolith Location</PrimaryBtn>
@@ -290,20 +321,27 @@ function ClinicalInfo({ details, fallbackPosition }: { details: VideoDetails | n
 
   return (
     <div style={s.clinical}>
-      <div>
+      <div style={s.clinicalHeader}>PERTINENT CLINICAL INFORMATION</div>
+      <div style={s.clinicalRow}>
         <span style={s.clinicalLabel}>The nystagmus was observed in the following test - </span>
         <span style={s.clinicalValue}>{posText}</span>
       </div>
       {charParts.length > 0 && (
-        <div>
+        <div style={s.clinicalRow}>
           <span style={s.clinicalLabel}>Other nystagmus characteristics noted - </span>
           <span style={s.clinicalValue}>{charParts.join(", ")}</span>
         </div>
       )}
       {sympParts.length > 0 && (
-        <div>
+        <div style={s.clinicalRow}>
           <span style={s.clinicalLabel}>Patient symptoms during testing - </span>
           <span style={s.clinicalValue}>{sympParts.join(", ")}</span>
+        </div>
+      )}
+      {details?.comments != null && (
+        <div style={s.clinicalRow}>
+          <span style={s.clinicalLabel}>Comments - </span>
+          <span style={s.clinicalValue}>{details.comments}</span>
         </div>
       )}
     </div>
@@ -434,19 +472,29 @@ const s: Record<string, React.CSSProperties> = {
   posTag: { fontSize: 13, color: "var(--accent)", fontFamily: "var(--font-mono), monospace", letterSpacing: "0.04em", fontWeight: 500 },
   clinical: {
     width: "100%",
-    maxWidth: 640,
-    background: "var(--bg-elev)",
-    border: "1px solid var(--line)",
-    borderRadius: 10,
-    padding: "14px 18px",
+    maxWidth: 720,
+    background: "#f3f1fb",
+    border: "1px solid #e2ddf3",
+    borderRadius: 14,
+    padding: "26px 32px",
     display: "flex",
     flexDirection: "column",
-    gap: 8,
-    fontSize: 13.5,
+    gap: 18,
+    fontSize: 14.5,
     lineHeight: 1.5,
+    boxShadow: "0 8px 24px -16px rgba(40,30,80,0.25)",
   },
-  clinicalLabel: { color: "var(--ink-dim)" },
-  clinicalValue: { color: "var(--ink)", fontWeight: 600 },
+  clinicalHeader: {
+    textAlign: "center",
+    fontWeight: 700,
+    fontSize: 16,
+    letterSpacing: "0.04em",
+    color: "#1a1530",
+    marginBottom: 4,
+  },
+  clinicalRow: { color: "#3a3550" },
+  clinicalLabel: { color: "#4a4560", fontWeight: 400 },
+  clinicalValue: { color: "#1a1530", fontWeight: 700 },
   right: { minWidth: 0 },
   summary: {
     background: "var(--bg-elev)",

@@ -42,7 +42,7 @@ export const VIDEOS: VideoConfig[] = [
   { id: "10UCC",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780687914/Dix_HallPike_Right_bgzihy.mov", position: "Position 1 - Supine Roll Right, Position 2 - Dix Hallpike Right" },
   { id: "28UCC",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688037/Deep_Head_Hang_2026-06-01-17-47-42_d968fc1c_t7e7aq.mov", position: "Dix Hallpike Right" },
   { id: "29UCC",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688084/Roll_Right_2026-05-21-14-55-33_e8307e09_helz0t.mov", position: "Deep Head Hang" },
-  { id: "31UCC",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688124/UTN_C_lt60s_Deep_Head_Hang_Janet_W_09_26_2025_copy_2_ez9ykj.mov", position: "Deep Head Hang" },
+  { id: "26RHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1782843258/R_HN_Daisy_6_mild_zht8za.mov", position: "Supine Roll Right" },
   { id: "32UCC",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688253/Deep_Head_Hang_3_1_qboj8i.mov", position: "Position 1 - Deep Head Hang, Position 2 - Dix Hallpike Right" },
   { id: "13UC",   cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688326/UTN_Cf_14_sta1my.mov",  position: "Position 1 - Deep Head Hang, Position 2 - Dix Hallpike Left" },
   { id: "14UC",   cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688393/Roll_Left_fvrbtf.mov",  position: "Dix Hallpike Left" },
@@ -54,7 +54,7 @@ export const VIDEOS: VideoConfig[] = [
   { id: "21LHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688840/Lying_copHNmildClipped_giiyhg.mov", position: "Supine Roll Left" },
   { id: "22LHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780688921/Roll_Right_1_gelnet.mov", position: "Supine Roll Right" },
   { id: "23LHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780689030/Deep_Head_Hang_6_1_um6y2m.mov", position: "Supine Roll Left" },
-  { id: "24RHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780689111/Roll_Left_2_2_l4rbff.mov", position: "Position 1 - Supine and Position 2 - Supine Roll Left" },
+  { id: "24RHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1782843610/Roll_Left_222_lwgeyt.mov", position: "Position 1 - Supine and Position 2 - Supine Roll Left" },
   { id: "27RHN",  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1780689218/Dix_HallPike_Left_rfawha.mov", position: "Supine Roll Right" },
 ];
 

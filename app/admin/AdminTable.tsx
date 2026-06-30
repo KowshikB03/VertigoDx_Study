@@ -3,7 +3,8 @@
 import { useState, Fragment } from "react";
 import type { AnswerRow } from "@/lib/db";
 import { VIDEO_ORDER } from "@/lib/videos";
-import { isCorrectSingle, points1a, points1b, points1c, maxPoints, isManeuverInKey } from "@/lib/answerKey";
+import { isCorrectSingle, points1a, points1b, points1c, maxPoints, isManeuverInKey, isOtolithInKey, OTOLITH_MULTI_VIDEOS } from "@/lib/answerKey";
+import { FEEDBACK_QUESTIONS } from "@/lib/feedback";
 
 interface VideoLibItem { id: string; url: string; position: string; }
 
@@ -28,12 +29,18 @@ const COLS: { key: keyof AnswerRow; label: string }[] = [
 export default function AdminTable({
   rows,
   videoLibrary,
+  feedback,
 }: {
   rows: AnswerRow[];
   videoLibrary: VideoLibItem[];
+  feedback: { user_id: string; scores: number[] }[];
 }) {
   const [tab, setTab] = useState<"answers" | "videos">("answers");
   const [filter, setFilter] = useState("");
+
+  // Quick lookup: user_id -> their feedback scores.
+  const feedbackByUser = new Map<string, number[]>();
+  for (const f of feedback) feedbackByUser.set(f.user_id, f.scores);
 
   return (
     <div>
@@ -69,7 +76,7 @@ export default function AdminTable({
       </div>
 
       {tab === "answers" ? (
-        <AnswersView rows={rows} filter={filter} />
+        <AnswersView rows={rows} filter={filter} feedbackByUser={feedbackByUser} />
       ) : (
         <VideoLibraryView items={videoLibrary} />
       )}
@@ -94,7 +101,7 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
 }
 
 // ---- ANSWERS TAB ----
-function AnswersView({ rows, filter }: { rows: AnswerRow[]; filter: string }) {
+function AnswersView({ rows, filter, feedbackByUser }: { rows: AnswerRow[]; filter: string; feedbackByUser: Map<string, number[]> }) {
   if (rows.length === 0) {
     return (
       <div style={{ background: "var(--bg-card)", border: "1px dashed var(--line)", borderRadius: 10, padding: 48, textAlign: "center", color: "var(--ink-dim)" }}>
@@ -195,6 +202,8 @@ function AnswersView({ rows, filter }: { rows: AnswerRow[]; filter: string }) {
                           <td key={c.key} style={{ padding: "10px 14px", borderBottom: "1px solid var(--line-soft)", color: cellColor(c.key, r) }}>
                             {c.key === "maneuver_answer"
                               ? <ManeuverCell videoId={String(r.video_id)} answer={r.maneuver_answer} />
+                              : c.key === "otolith_location_answer" && OTOLITH_MULTI_VIDEOS.has(String(r.video_id))
+                              ? <OtolithMultiCell videoId={String(r.video_id)} answer={r.otolith_location_answer} />
                               : formatCell(c.key, r[c.key])}
                           </td>
                         ))}
@@ -211,6 +220,7 @@ function AnswersView({ rows, filter }: { rows: AnswerRow[]; filter: string }) {
                 </table>
               </div>
             )}
+            <FeedbackDisplay scores={feedbackByUser.get(user)} />
           </section>
         );
       })}
@@ -269,6 +279,49 @@ function VideoLibraryView({ items }: { items: VideoLibItem[] }) {
 const thLib: React.CSSProperties = { textAlign: "left", padding: "13px 14px", color: "var(--ink-dim)", borderBottom: "1px solid var(--line)", background: "var(--bg-elev)", fontWeight: 500, fontSize: 13 };
 const tdLib: React.CSSProperties = { padding: "12px 14px", borderBottom: "1px solid var(--line-soft)", verticalAlign: "middle" };
 const ptTd: React.CSSProperties = { padding: "10px 14px", borderBottom: "1px solid var(--line-soft)", color: "var(--ink)", textAlign: "left" };
+
+// Shows a clinician's end-of-study feedback scores (0-5 each), or nothing if
+// they haven't submitted feedback yet.
+function FeedbackDisplay({ scores }: { scores: number[] | undefined }) {
+  if (!scores || scores.length === 0) return null;
+  return (
+    <div style={{ marginTop: 16, border: "1px solid var(--line)", borderRadius: 10, background: "var(--bg-card)", padding: "16px 20px" }}>
+      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--accent)" }}>
+        Feedback responses (0–5)
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {FEEDBACK_QUESTIONS.map((q, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 10, fontSize: 13.5 }}>
+            <span className="mono" style={{ color: "var(--accent)", fontWeight: 700, minWidth: 24 }}>
+              {scores[i] ?? "—"}
+            </span>
+            <span style={{ color: "var(--ink-dim)" }}>{i + 1}. {q.title}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Renders a multi-select otolith answer (e.g. 8D) with EACH answer colored
+// individually: green if correct, red if not.
+function OtolithMultiCell({ videoId, answer }: { videoId: string; answer: string | null }) {
+  if (!answer) return <>—</>;
+  const parts = answer.split(";").map((p) => p.trim()).filter(Boolean);
+  return (
+    <>
+      {parts.map((m, i) => {
+        const ok = isOtolithInKey(videoId, m);
+        const color = ok === null ? "var(--ink)" : ok ? "#16a34a" : "#dc2626";
+        return (
+          <span key={i} style={{ color }}>
+            {m}{i < parts.length - 1 ? "; " : ""}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
 // Renders the maneuver answer with EACH maneuver colored individually:
 // green if it's a correct maneuver for this video, red if not. So when a

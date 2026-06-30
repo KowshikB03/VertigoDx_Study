@@ -56,11 +56,15 @@ export async function POST(req: NextRequest) {
   }
 
   if (step === "otolith") {
-    if (!OTOLITH_OPTIONS.includes(body.answer)) {
+    // Multi-select 1b videos (e.g. 8D) submit a "; " joined string of up to 2 answers.
+    const otoParts = String(body.answer || "").split(";").map((p: string) => p.trim()).filter(Boolean);
+    const otoValid = otoParts.length >= 1 && otoParts.length <= 2 &&
+      otoParts.every((p: string) => OTOLITH_OPTIONS.includes(p));
+    if (!otoValid) {
       return NextResponse.json({ ok: false, error: "Invalid otolith answer." }, { status: 400 });
     }
     const r = await saveOtolith({
-      userId: user.id, videoId: vid, answer: body.answer,
+      userId: user.id, videoId: vid, answer: otoParts.join("; "),
       confidence: clampConf(body.confidence), responseTime: elapsed(body.startedAt),
     });
     return NextResponse.json(r);

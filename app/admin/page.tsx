@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
-import { getAllAnswers } from "@/lib/db";
+import { getAllAnswers, getAllFeedback } from "@/lib/db";
 import { VIDEOS, videoUrl } from "@/lib/videos";
 import AdminTable from "./AdminTable";
 import LogoutButton from "./LogoutButton";
@@ -14,6 +14,7 @@ export default async function AdminPage() {
   if (user.role !== "admin") redirect("/study");
 
   const rows = await getAllAnswers();
+  const feedback = await getAllFeedback();
 
   const testers = new Set(rows.map((r) => r.user_id)).size;
   const completedVideos = rows.filter((r) => r.final_submission_timestamp).length;
@@ -44,7 +45,7 @@ export default async function AdminPage() {
         <Stat label="Completed Q-sets" value={completedVideos} />
       </div>
 
-      <AdminTable rows={rows} videoLibrary={videoLibrary} />
+      <AdminTable rows={rows} videoLibrary={videoLibrary} feedback={feedback} />
     </main>
   );
 }

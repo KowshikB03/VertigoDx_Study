@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
-import { remainingShuffled, videoState, getRow, completedCount } from "@/lib/db";
+import { remainingShuffled, videoState, getRow, completedCount, hasFeedback } from "@/lib/db";
 import { getVideo, videoUrl, TOTAL_VIDEOS, VIDEO_ORDER } from "@/lib/videos";
 import { getDetails } from "@/lib/videoDetails";
 import StudyFlow from "./StudyFlow";
+import FeedbackForm from "./FeedbackForm";
 import Instructions from "./Instructions";
 import LogoutButton from "../admin/LogoutButton";
 
@@ -37,8 +38,12 @@ export default async function StudyPage({
   const remaining = await remainingShuffled(user.id, VIDEO_ORDER, seed);
   const next = remaining.length > 0 ? remaining[0] : null;
 
-  // All videos complete -> completion screen.
+  // All videos complete -> require feedback, then show completion screen.
   if (next === null) {
+    const feedbackDone = await hasFeedback(user.id);
+    if (!feedbackDone) {
+      return <FeedbackForm participantId={user.id} />;
+    }
     return (
       <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
         <div style={{ maxWidth: 460, textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--line)", borderRadius: 12, padding: 44 }}>

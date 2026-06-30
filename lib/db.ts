@@ -18,8 +18,8 @@ let initDone: Promise<void> | null = null;
 function ensureTable(): Promise<void> {
   if (!initDone) {
     initDone = db
-      .execute(`
-        CREATE TABLE IF NOT EXISTS answers (
+      .batch([
+        `CREATE TABLE IF NOT EXISTS answers (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           user_id TEXT NOT NULL,
           video_id TEXT NOT NULL,
@@ -42,8 +42,13 @@ function ensureTable(): Promise<void> {
           maneuver_confidence_percent INTEGER,
           maneuver_response_time_seconds REAL,
           created_at TEXT DEFAULT (datetime('now'))
-        );
-      `)
+        );`,
+        `CREATE TABLE IF NOT EXISTS feedback (
+          user_id TEXT PRIMARY KEY,
+          answers_json TEXT,
+          submitted_at TEXT DEFAULT (datetime('now'))
+        );`,
+      ])
       .then(() => undefined);
   }
   return initDone;
@@ -213,4 +218,53 @@ export async function completedCount(userId: string): Promise<number> {
     args: [userId],
   });
   return res.rows.length;
+}
+// ---- Feedback (end-of-study questionnaire) ----
+export interface FeedbackRow {
+  user_id: string;
+  answers_json: string; // JSON: { scores: number[], submitted: string }
+  submitted_at: string;
+}
+
+export async function saveFeedback(userId: string, scores: number[]): Promise<{ ok: true }> {
+  await ensureTable();
+  // One feedback per user; upsert so re-submission overwrites (shouldn't happen, but safe).
+  await db.execute({
+    sql: `INSERT INTO feedback (user_id, answers_json, submitted_at)
+          VALUES (?, ?, datetime('now'))
+          ON CONFLICT(user_id) DO UPDATE SET
+            answers_json = excluded.answers_json,
+            submitted_at = excluded.submitted_at`,
+    args: [userId, JSON.stringify({ scores })],
+  });
+  return { ok: true };
+}
+
+export async function getFeedback(userId: string): Promise<number[] | null> {
+  await ensureTable();
+  const res = await db.execute({
+    sql: "SELECT answers_json FROM feedback WHERE user_id = ?",
+    args: [userId],
+  });
+  if (!res.rows.length) return null;
+  try {
+    const parsed = JSON.parse((res.rows[0] as unknown as FeedbackRow).answers_json);
+    return Array.isArray(parsed.scores) ? parsed.scores : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getAllFeedback(): Promise<{ user_id: string; scores: number[] }[]> {
+  await ensureTable();
+  const res = await db.execute("SELECT user_id, answers_json FROM feedback");
+  return (res.rows as unknown as FeedbackRow[]).map((r) => {
+    let scores: number[] = [];
+    try { scores = JSON.parse(r.answers_json).scores ?? []; } catch { /* ignore */ }
+    return { user_id: r.user_id, scores };
+  });
+}
+
+export async function hasFeedback(userId: string): Promise<boolean> {
+  return (await getFeedback(userId)) !== null;
 }
