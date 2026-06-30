@@ -38,7 +38,7 @@ export function RadioGroup({
               onChange={() => onChange(opt)}
               style={{ width: "auto", accentColor: "#2dd4bf" }}
             />
-            <span style={{ color: "var(--ink-faint)", fontSize: 12, minWidth: 18 }}>
+            <span style={{ color: "#000", fontSize: 12, minWidth: 18 }}>
               {i + 1}.
             </span>
             <span>{opt}</span>
@@ -59,7 +59,7 @@ export function ConfidenceSlider({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <span style={{ fontSize: 13, color: "var(--ink-dim)" }}>Confidence</span>
+        <span style={{ fontSize: 13, color: "#000" }}>Confidence</span>
         <span
           className="mono"
           style={{ fontSize: 22, color: "var(--accent)", fontWeight: 500 }}
@@ -76,7 +76,7 @@ export function ConfidenceSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         style={{ width: "100%", accentColor: "#0d9488", padding: 0 }}
       />
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ink-faint)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#000" }}>
         <span>0 — Not at all sure</span>
         <span>100 — Certain</span>
       </div>

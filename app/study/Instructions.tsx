@@ -19,7 +19,7 @@ export default function Instructions() {
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
       <div style={{ maxWidth: 600, width: "100%", background: "var(--bg-card)", border: "1px solid var(--line)", borderRadius: 12, padding: 40 }}>
-        <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "var(--ink-faint)", marginBottom: 14 }}>
+        <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "#000", marginBottom: 14 }}>
           SMARTVERTIGO™ · INSTRUCTIONS
         </div>
         <h1 style={{ fontSize: 27, marginBottom: 18 }}>Before you begin</h1>

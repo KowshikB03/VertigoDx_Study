@@ -47,9 +47,9 @@ export default async function StudyPage({
     return (
       <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
         <div style={{ maxWidth: 460, textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--line)", borderRadius: 12, padding: 44 }}>
-          <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "var(--ink-faint)", marginBottom: 14 }}>SMARTVERTIGO™ · COMPLETE</div>
+          <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "#000", marginBottom: 14 }}>SMARTVERTIGO™ · COMPLETE</div>
           <h1 style={{ fontSize: 26, marginBottom: 12 }}>All {TOTAL_VIDEOS} questions complete</h1>
-          <p style={{ color: "var(--ink-dim)", fontSize: 14, lineHeight: 1.6, marginBottom: 26 }}>
+          <p style={{ color: "#000", fontSize: 14, lineHeight: 1.6, marginBottom: 26 }}>
             Thank you, {user.name || user.id}. Your responses have been recorded. You may sign out.
           </p>
           <LogoutButton />

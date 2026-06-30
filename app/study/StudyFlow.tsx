@@ -376,7 +376,7 @@ function PriorSummary({
     <div style={s.summary}>
       {items.map((it) => (
         <div key={it.label} style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
-          <span style={{ fontSize: 13, color: "var(--ink-dim)", fontWeight: 500 }}>{it.label}</span>
+          <span style={{ fontSize: 13.5, color: "#000", fontWeight: 700 }}>{it.label}</span>
           <span style={{ fontSize: 14.5, fontWeight: 700, color: it.color }}>{it.value || "—"}</span>
         </div>
       ))}
@@ -390,7 +390,7 @@ function CheckGroup({
 }: { options: string[]; selected: string[]; onToggle: (v: string) => void; name: string; max: number }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ fontSize: 12, color: "var(--ink-dim)", marginBottom: 2 }}>
+      <div style={{ fontSize: 12, color: "#000", marginBottom: 2 }}>
         Selected {selected.length} of {max} max
       </div>
       {options.map((opt, i) => {
@@ -417,7 +417,7 @@ function CheckGroup({
               onChange={() => onToggle(opt)}
               style={{ width: "auto", accentColor: "#0d9488" }}
             />
-            <span style={{ color: "var(--ink-faint)", fontSize: 12, minWidth: 18 }}>{i + 1}.</span>
+            <span style={{ color: "#000", fontSize: 12, minWidth: 18 }}>{i + 1}.</span>
             <span>{opt}</span>
           </label>
         );
@@ -463,7 +463,7 @@ function QuestionBlock({
           </div>
           <div style={{ padding: "10px 12px" }}>
             <div style={{ color: theme.text, fontWeight: 700, fontSize: 13.5, marginBottom: 4 }}>{qLabel}</div>
-            <div style={{ color: "var(--ink-dim)", fontSize: 11.5, lineHeight: 1.4 }}>{qSub}</div>
+            <div style={{ color: "#000", fontSize: 11.5, lineHeight: 1.4 }}>{qSub}</div>
           </div>
         </div>
       </div>
@@ -472,7 +472,7 @@ function QuestionBlock({
       {heading && (
         <div>
           <h2 style={{ fontSize: 18, color: "#7c3aed", textDecoration: "underline", marginBottom: 6 }}>{heading}</h2>
-          {headingSub && <p style={{ color: "var(--ink-dim)", fontSize: 13, lineHeight: 1.5 }}>{headingSub}</p>}
+          {headingSub && <p style={{ color: theme.text, fontSize: 13.5, lineHeight: 1.5, fontWeight: 500 }}>{headingSub}</p>}
         </div>
       )}
 
@@ -509,10 +509,10 @@ function TestFlowLegend() {
                 </div>
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ color: theme.text, fontWeight: 700, fontSize: 11.5, marginBottom: 3, textAlign: "center" }}>{c.title}</div>
-                  <div style={{ color: "var(--ink-dim)", fontSize: 10, lineHeight: 1.35, textAlign: "center" }}>{c.sub}</div>
+                  <div style={{ color: "#000", fontSize: 10, lineHeight: 1.35, textAlign: "center" }}>{c.sub}</div>
                 </div>
               </div>
-              {i < cards.length - 1 && <span style={{ color: "var(--ink-faint)", fontSize: 16 }}>→</span>}
+              {i < cards.length - 1 && <span style={{ color: "#000", fontSize: 16 }}>→</span>}
             </div>
           );
         })}
@@ -530,7 +530,7 @@ function LegendKey({ color, text }: { color: string; text: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ width: 12, height: 12, borderRadius: 3, background: color, display: "inline-block" }} />
-      <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{text}</span>
+      <span style={{ fontSize: 11, color: "#000" }}>{text}</span>
     </div>
   );
 }
@@ -571,7 +571,7 @@ function StepDots({ step }: { step: Step }) {
 const s: Record<string, React.CSSProperties> = {
   page: { maxWidth: 820, margin: "0 auto", padding: "24px 28px" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 18, borderBottom: "1px solid var(--line)", marginBottom: 28 },
-  pid: { fontSize: 11, letterSpacing: "0.14em", color: "var(--ink-faint)" },
+  pid: { fontSize: 11, letterSpacing: "0.14em", color: "#000" },
   counter: { fontSize: 16, color: "#0d9488", fontWeight: 700, letterSpacing: "0.02em" },
   counterCenter: { fontSize: 18, color: "#0d9488", fontWeight: 700, textAlign: "center", margin: "4px 0 18px" },
   legend: {

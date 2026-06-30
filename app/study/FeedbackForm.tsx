@@ -48,14 +48,14 @@ export default function FeedbackForm({ participantId }: { participantId: string 
     <main style={{ minHeight: "100vh", padding: "28px 24px" }}>
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
         <div style={{ marginBottom: 18 }}><Logo height={30} /></div>
-        <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "var(--ink-faint)", marginBottom: 8 }}>
+        <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "#000", marginBottom: 8 }}>
           PARTICIPANT: {participantId} · FINAL STEP
         </div>
         <h1 style={{ fontSize: 26, marginBottom: 8 }}>Feedback</h1>
-        <p style={{ color: "var(--ink-dim)", fontSize: 14.5, lineHeight: 1.5, marginBottom: 6 }}>
+        <p style={{ color: "#000", fontSize: 14.5, lineHeight: 1.5, marginBottom: 6 }}>
           How much do you agree with the following statements:
         </p>
-        <p style={{ color: "var(--ink-dim)", fontSize: 13, marginBottom: 26 }}>
+        <p style={{ color: "#000", fontSize: 13, marginBottom: 26 }}>
           (0 = Strongly Disagree / Very Poor; 5 = Strongly Agree / Excellent)
         </p>
 
@@ -69,7 +69,7 @@ export default function FeedbackForm({ participantId }: { participantId: string 
                 <span style={{ color: "var(--accent)", fontWeight: 700 }}>{i + 1}.</span>
                 <span style={{ fontWeight: 700, fontSize: 15 }}>{q.title}</span>
               </div>
-              <p style={{ color: "var(--ink-dim)", fontSize: 13.5, lineHeight: 1.5, marginBottom: 16 }}>
+              <p style={{ color: "#000", fontSize: 13.5, lineHeight: 1.5, marginBottom: 16 }}>
                 {q.text}
               </p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

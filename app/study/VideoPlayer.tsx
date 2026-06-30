@@ -151,7 +151,7 @@ const styles: Record<string, React.CSSProperties> = {
     height: "100%",
   },
   controls: { minHeight: 40, display: "flex", alignItems: "center" },
-  hint: { fontSize: 13, color: "var(--ink-dim)", textAlign: "center", maxWidth: 380 },
+  hint: { fontSize: 13, color: "#000", textAlign: "center", maxWidth: 380 },
   replayBtn: {
     background: "transparent",
     border: "1px solid var(--accent)",
