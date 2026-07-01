@@ -249,7 +249,7 @@ export default function StudyFlow({
           <StepDots step={step} />
 
           {step === "initial" && (
-            <QuestionBlock qid="A" qLabel="Initial Classification" qSub="Watch the video and provide your initial nystagmus classification." titleLink="Question 1A:">
+            <QuestionBlock qid="A" qLabel="Initial Classification" qSub="Watch the video and provide your initial nystagmus classification." seqNum={sequenceNumber}>
               <RadioGroup name="init" options={NYSTAGMUS_OPTIONS} value={initClass} onChange={setInitClass} />
               <ConfidenceSlider value={initConf} onChange={setInitConf} />
               <ErrLine err={err} />
@@ -258,7 +258,7 @@ export default function StudyFlow({
           )}
 
           {step === "final" && (
-            <QuestionBlock qid="A" qLabel="Final Classification (Submit)" qSub={`Review and modify your answer if needed. You may replay up to ${MAX_REPLAYS} times.`} titleLink="Question 1A:" heading="Keep or change Answer 1A to be your FINAL answer:">
+            <QuestionBlock qid="A" qLabel="Final Classification (Submit)" qSub={`Review and modify your answer if needed. You may replay up to ${MAX_REPLAYS} times.`} seqNum={sequenceNumber} heading={`Keep or change Answer ${sequenceNumber}A to be your FINAL answer:`}>
               <RadioGroup name="final" options={NYSTAGMUS_OPTIONS} value={finalClass} onChange={setFinalClass} />
               <ConfidenceSlider value={finalConf} onChange={setFinalConf} />
               <ErrLine err={err} />
@@ -267,7 +267,7 @@ export default function StudyFlow({
           )}
 
           {step === "otolith" && (
-            <QuestionBlock qid="B" qLabel="Diagnosis: Otolith Location" qSub="Identify the affected otolith location." titleLink="Question 1B:" heading={`Question 1B - Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
+            <QuestionBlock qid="B" qLabel="Diagnosis: Otolith Location" qSub="Identify the affected otolith location." seqNum={sequenceNumber} heading={`Question ${sequenceNumber}B - Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
               {isMultiOtolith ? (
                 <CheckGroup
                   name="oto"
@@ -286,7 +286,7 @@ export default function StudyFlow({
           )}
 
           {step === "maneuver" && (
-            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." titleLink="Question 1C:" heading="Question 1C: Treatment Maneuver (Choose 2 techniques)" headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
+            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." seqNum={sequenceNumber} heading={`Question ${sequenceNumber}C: Treatment Maneuver (Choose 2 techniques)`} headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
               <CheckGroup
                 name="man"
                 options={MANEUVER_OPTIONS}
@@ -436,12 +436,12 @@ const Q_THEME: Record<string, { bg: string; text: string }> = {
 // A question step: shows the colored QUESTION badge card, a purple "Question 1X:"
 // link-style title, an optional bold heading + sub, then the inputs.
 function QuestionBlock({
-  qid, qLabel, qSub, titleLink, heading, headingSub, children,
+  qid, qLabel, qSub, seqNum, heading, headingSub, children,
 }: {
   qid: "A" | "B" | "C";
   qLabel: string;
   qSub: string;
-  titleLink: string;
+  seqNum: number;
   heading?: string;
   headingSub?: string;
   children: React.ReactNode;
@@ -451,8 +451,8 @@ function QuestionBlock({
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* Title link + badge card row */}
       <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
-        <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 16, textDecoration: "underline" }}>
-          {titleLink}
+        <span style={{ color: theme.text, fontWeight: 700, fontSize: 16, textDecoration: "underline" }}>
+          Question {seqNum}{qid}:
         </span>
         <div style={{
           border: `2px solid ${theme.bg}`, borderRadius: 12, overflow: "hidden",
