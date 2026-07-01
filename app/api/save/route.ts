@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
   if (step === "maneuver") {
     const parts = String(body.answer || "").split(";").map((p: string) => p.trim()).filter(Boolean);
-    const valid = parts.length >= 1 && parts.length <= 2 &&
+    const valid = parts.length === 2 &&
       parts.every((p: string) => MANEUVER_OPTIONS.includes(p));
     if (!valid) {
       return NextResponse.json({ ok: false, error: "Invalid maneuver answer." }, { status: 400 });

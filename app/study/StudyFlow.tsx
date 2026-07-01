@@ -191,7 +191,7 @@ export default function StudyFlow({
   }
 
   async function submitManeuver() {
-    if (maneuvers.length === 0) { setErr("Select at least one treatment maneuver."); return; }
+    if (maneuvers.length < 2) { setErr("Select two treatment maneuvers."); return; }
     const ok = await post({
       step: "maneuver",
       answer: maneuvers.join("; "), // combined string, max 2
@@ -267,7 +267,7 @@ export default function StudyFlow({
           )}
 
           {step === "otolith" && (
-            <QuestionBlock qid="B" qLabel="Diagnosis: Otolith Location" qSub="Identify the affected otolith location." seqNum={sequenceNumber} heading={`Question ${sequenceNumber}B - Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
+            <QuestionBlock qid="B" qLabel="Diagnosis: Otolith Location" qSub="Identify the affected otolith location." seqNum={sequenceNumber} heading={`Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
               {isMultiOtolith ? (
                 <CheckGroup
                   name="oto"
@@ -286,7 +286,7 @@ export default function StudyFlow({
           )}
 
           {step === "maneuver" && (
-            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." seqNum={sequenceNumber} heading={`Question ${sequenceNumber}C: Treatment Maneuver (Choose 2 techniques)`} headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
+            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." seqNum={sequenceNumber} heading={`Treatment Maneuver (Choose 2 techniques)`} headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
               <CheckGroup
                 name="man"
                 options={MANEUVER_OPTIONS}
@@ -463,15 +463,15 @@ function QuestionBlock({
           </div>
           <div style={{ padding: "10px 12px" }}>
             <div style={{ color: theme.text, fontWeight: 700, fontSize: 13.5, marginBottom: 4 }}>{qLabel}</div>
-            <div style={{ color: "#000", fontSize: 11.5, lineHeight: 1.4 }}>{qSub}</div>
+            <div style={{ color: theme.text, fontSize: 11.5, lineHeight: 1.4 }}>{qSub}</div>
           </div>
         </div>
       </div>
 
-      {/* Optional bold heading (purple) + sub */}
+      {/* Optional bold heading + sub, in the question's theme color */}
       {heading && (
         <div>
-          <h2 style={{ fontSize: 18, color: "#7c3aed", textDecoration: "underline", marginBottom: 6 }}>{heading}</h2>
+          <h2 style={{ fontSize: 18, color: theme.text, textDecoration: "underline", marginBottom: 6 }}>{heading}</h2>
           {headingSub && <p style={{ color: theme.text, fontSize: 13.5, lineHeight: 1.5, fontWeight: 500 }}>{headingSub}</p>}
         </div>
       )}
