@@ -242,7 +242,7 @@ export default function StudyFlow({
         </div>
 
         {/* Summary of prior answers (below video, above questionnaire) */}
-        <PriorSummary step={step} initClass={initClass} finalClass={finalClass} otolith={otolith} />
+        <PriorSummary step={step} initClass={initClass} finalClass={finalClass} otolith={isMultiOtolith ? otolithMulti.join("; ") : otolith} seqNum={sequenceNumber} />
 
         {/* Questions */}
         <div style={s.right}>
@@ -359,16 +359,16 @@ function ClinicalInfo({ details, fallbackPosition }: { details: VideoDetails | n
 // ---- Prior-answer summary box ----
 // Colors per request: 1a answer = blue, 1b answer = green, 1c context = red/pink.
 function PriorSummary({
-  step, initClass, finalClass, otolith,
-}: { step: Step; initClass: string | null; finalClass: string | null; otolith: string | null }) {
+  step, initClass, finalClass, otolith, seqNum,
+}: { step: Step; initClass: string | null; finalClass: string | null; otolith: string | null; seqNum: number }) {
   const items: { label: string; value: string | null; color: string }[] = [];
   if (step === "final") {
-    items.push({ label: "Your INITIAL 1a NYSTAGMUS answer:", value: initClass, color: "#1d4ed8" });
+    items.push({ label: `Your INITIAL ${seqNum}A NYSTAGMUS Answer:`, value: initClass, color: "#1d4ed8" });
   } else if (step === "otolith") {
-    items.push({ label: "Your INITIAL 1a NYSTAGMUS answer:", value: finalClass, color: "#1d4ed8" });
+    items.push({ label: `Your FINAL ${seqNum}A NYSTAGMUS Answer:`, value: finalClass, color: "#1d4ed8" });
   } else if (step === "maneuver") {
-    items.push({ label: "Your FINAL 1A NYSTAGMUS Answer:", value: finalClass, color: "#1d4ed8" });
-    items.push({ label: "Your 1B DIAGNOSIS Answer:", value: otolith, color: "#15803d" });
+    items.push({ label: `Your FINAL ${seqNum}A NYSTAGMUS Answer:`, value: finalClass, color: "#1d4ed8" });
+    items.push({ label: `Your ${seqNum}B DIAGNOSIS Answer:`, value: otolith, color: "#15803d" });
   }
   if (items.length === 0) return null;
 
