@@ -249,7 +249,7 @@ export default function StudyFlow({
           <StepDots step={step} />
 
           {step === "initial" && (
-            <QuestionBlock qid="A" qLabel="Initial Classification" qSub="Watch the video and provide your initial nystagmus classification." seqNum={sequenceNumber}>
+            <QuestionBlock qid="A" cardImg="/study/card-a-initial.png" cardAlt="Initial Classification" seqNum={sequenceNumber}>
               <RadioGroup name="init" options={NYSTAGMUS_OPTIONS} value={initClass} onChange={setInitClass} />
               <ConfidenceSlider value={initConf} onChange={setInitConf} />
               <ErrLine err={err} />
@@ -258,7 +258,7 @@ export default function StudyFlow({
           )}
 
           {step === "final" && (
-            <QuestionBlock qid="A" qLabel="Final Classification (Submit)" qSub={`Review and modify your answer if needed. You may replay up to ${MAX_REPLAYS} times.`} seqNum={sequenceNumber} heading={`Keep or change Answer ${sequenceNumber}A to be your FINAL answer:`}>
+            <QuestionBlock qid="A" cardImg="/study/card-a-final.png" cardAlt="Final Classification (Submit)" seqNum={sequenceNumber} heading={`Keep or change Answer ${sequenceNumber}A to be your FINAL answer:`}>
               <RadioGroup name="final" options={NYSTAGMUS_OPTIONS} value={finalClass} onChange={setFinalClass} />
               <ConfidenceSlider value={finalConf} onChange={setFinalConf} />
               <ErrLine err={err} />
@@ -267,7 +267,7 @@ export default function StudyFlow({
           )}
 
           {step === "otolith" && (
-            <QuestionBlock qid="B" qLabel="Diagnosis: Otolith Location" qSub="Identify the affected otolith location." seqNum={sequenceNumber} heading={`Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
+            <QuestionBlock qid="B" cardImg="/study/card-b.png" cardAlt="Diagnosis: Otolith Location" seqNum={sequenceNumber} heading={`Otolith Location: Diagnosis (choose ${isMultiOtolith ? "up to 2" : "1"} answer${isMultiOtolith ? "s" : ""})`} headingSub={`Based on the classification of the video and the test position - ${position}, where is the otolith most likely located?`}>
               {isMultiOtolith ? (
                 <CheckGroup
                   name="oto"
@@ -286,7 +286,7 @@ export default function StudyFlow({
           )}
 
           {step === "maneuver" && (
-            <QuestionBlock qid="C" qLabel="Treatment Maneuver" qSub="Select the most appropriate treatment maneuver." seqNum={sequenceNumber} heading={`Treatment Maneuver (Choose 2 techniques)`} headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
+            <QuestionBlock qid="C" cardImg="/study/card-c.png" cardAlt="Treatment Maneuver" seqNum={sequenceNumber} heading={`Treatment Maneuver (Choose 2 techniques)`} headingSub="Based on the otolith location, what is the most appropriate treatment maneuver? You must select up to two.">
               <CheckGroup
                 name="man"
                 options={MANEUVER_OPTIONS}
@@ -436,11 +436,11 @@ const Q_THEME: Record<string, { bg: string; text: string }> = {
 // A question step: shows the colored QUESTION badge card, a purple "Question 1X:"
 // link-style title, an optional bold heading + sub, then the inputs.
 function QuestionBlock({
-  qid, qLabel, qSub, seqNum, heading, headingSub, children,
+  qid, cardImg, cardAlt, seqNum, heading, headingSub, children,
 }: {
   qid: "A" | "B" | "C";
-  qLabel: string;
-  qSub: string;
+  cardImg: string;
+  cardAlt: string;
   seqNum: number;
   heading?: string;
   headingSub?: string;
@@ -449,22 +449,13 @@ function QuestionBlock({
   const theme = Q_THEME[qid];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      {/* Title link + badge card row */}
+      {/* Title link + card image row */}
       <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
         <span style={{ color: theme.text, fontWeight: 700, fontSize: 16, textDecoration: "underline" }}>
           Question {seqNum}{qid}:
         </span>
-        <div style={{
-          border: `2px solid ${theme.bg}`, borderRadius: 12, overflow: "hidden",
-          minWidth: 180, textAlign: "center", background: "#fff",
-        }}>
-          <div style={{ background: theme.bg, color: "#fff", fontWeight: 700, fontSize: 12.5, padding: "5px 10px", letterSpacing: "0.04em" }}>
-            QUESTION {qid}
-          </div>
-          <div style={{ padding: "10px 12px" }}>
-            <div style={{ color: theme.text, fontWeight: 700, fontSize: 13.5, marginBottom: 4 }}>{qLabel}</div>
-            <div style={{ color: theme.text, fontSize: 11.5, lineHeight: 1.4 }}>{qSub}</div>
-          </div>
+        <div style={{ width: 240, maxWidth: "100%" }}>
+          <ImagePlaceholder src={cardImg} alt={cardAlt} label={cardImg} height={200} />
         </div>
       </div>
 
@@ -483,55 +474,36 @@ function QuestionBlock({
 
 // The "TEST FLOW & TIMING SUMMARY" legend shown above the video.
 function TestFlowLegend() {
-  const cards: { id: "A" | "B" | "C"; title: string; sub: string }[] = [
-    { id: "A", title: "Initial Classification", sub: "Watch the video and provide your initial nystagmus classification." },
-    { id: "A", title: "Final Classification (Submit)", sub: "Review and modify your answer if needed. Click SUBMIT FINAL ANSWER to finalize." },
-    { id: "B", title: "Diagnosis: Otolith Location", sub: "Identify the affected otolith location." },
-    { id: "C", title: "Treatment Maneuver", sub: "Select the most appropriate treatment maneuver." },
-  ];
   return (
-    <div style={s.legend}>
-      <div style={s.legendTitle}>TEST FLOW &amp; TIMING SUMMARY</div>
-      <div style={s.legendTiming}>
-        <strong style={{ color: "#1d4ed8" }}>TIMING IS MEASURED:</strong> From pressing <strong>PLAY</strong> when starting the video for Question A, and ends when you click <strong>SUBMIT FINAL ANSWER</strong>.
-      </div>
-      <div style={s.legendCards}>
-        {cards.map((c, i) => {
-          const theme = Q_THEME[c.id];
-          return (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{
-                flex: 1, border: `1.5px solid ${theme.bg}`, borderRadius: 10, overflow: "hidden",
-                background: "#fff", minWidth: 0,
-              }}>
-                <div style={{ background: theme.bg, color: "#fff", fontWeight: 700, fontSize: 10.5, padding: "4px 8px", textAlign: "center", letterSpacing: "0.04em" }}>
-                  QUESTION {c.id}
-                </div>
-                <div style={{ padding: "8px 10px" }}>
-                  <div style={{ color: theme.text, fontWeight: 700, fontSize: 11.5, marginBottom: 3, textAlign: "center" }}>{c.title}</div>
-                  <div style={{ color: "#000", fontSize: 10, lineHeight: 1.35, textAlign: "center" }}>{c.sub}</div>
-                </div>
-              </div>
-              {i < cards.length - 1 && <span style={{ color: "#000", fontSize: 16 }}>→</span>}
-            </div>
-          );
-        })}
-      </div>
-      <div style={s.legendKey}>
-        <LegendKey color="#1d4ed8" text="Question A: Nystagmus Classification (Initial and Final)" />
-        <LegendKey color="#15803d" text="Question B: Diagnosis: Otolith Location" />
-        <LegendKey color="#7c3aed" text="Question C: Treatment Maneuver" />
-      </div>
+    <div style={{ marginBottom: 22 }}>
+      <ImagePlaceholder src="/study/legend.png" alt="Test Flow & Timing Summary" label="legend.png" height={300} />
     </div>
   );
 }
 
-function LegendKey({ color, text }: { color: string; text: string }) {
+// Shows an image from /public; if the file isn't there yet, shows a labeled
+// dashed placeholder box so the layout stays intact until you add the file.
+function ImagePlaceholder({ src, alt, label, height }: { src: string; alt: string; label: string; height: number }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div style={{
+        width: "100%", minHeight: height, border: "2px dashed #9ca3af", borderRadius: 12,
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        gap: 6, background: "#f9fafb", color: "#000", textAlign: "center", padding: 16,
+      }}>
+        <div style={{ fontWeight: 700, fontSize: 14 }}>{alt}</div>
+        <div style={{ fontSize: 12.5 }}>Add image at <code style={{ background: "#eee", padding: "2px 6px", borderRadius: 4 }}>public{src}</code></div>
+      </div>
+    );
+  }
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <span style={{ width: 12, height: 12, borderRadius: 3, background: color, display: "inline-block" }} />
-      <span style={{ fontSize: 11, color: "#000" }}>{text}</span>
-    </div>
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setFailed(true)}
+      style={{ width: "100%", maxWidth: 900, height: "auto", display: "block", margin: "0 auto", borderRadius: 12 }}
+    />
   );
 }
 

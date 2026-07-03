@@ -88,7 +88,7 @@ export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
     if (!k) return null;
     // Multi-answer 1b (e.g. 8D): 1 point per correct otolith selected, max 2, no penalty.
     if (k.bMulti && OTOLITH_MULTI_VIDEOS.has(videoId)) {
-      if (!otolith) return 0;
+      if (!otolith) return null; // no answer submitted -> "—"
       const given = otolith.split(";").map(norm).filter(Boolean);
       const correct = new Set(k.bMulti.map(norm).filter(Boolean));
       const seen = new Set<string>();
@@ -114,7 +114,7 @@ export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
   export function points1c(videoId: string, maneuverAnswer: string | null): number | null {
     const k = ANSWER_KEY[videoId];
     if (!k) return null;
-    if (!maneuverAnswer) return 0;
+    if (!maneuverAnswer) return null; // no answer submitted -> "—" (consistent with 1b)
     const given = maneuverAnswer.split(";").map(norm).filter(Boolean);
     const correct = new Set(k.c.map(norm).filter(Boolean));
     // 1 point for each given maneuver that is in the correct set (no double count).

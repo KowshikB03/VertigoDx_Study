@@ -26,6 +26,8 @@ export const USERS: User[] = [
   //       "tester 1" with a Delete-data button so dummy runs can be cleared) -----
   { id: "tester1", password: "test-001", role: "tester", name: "tester 1" },
   { id: "tester2", password: "test-002", role: "tester", name: "tester 2" },
+  { id: "tester3", password: "test-003", role: "tester", name: "tester 3" },
+  { id: "tester4", password: "test-004", role: "tester", name: "tester 4" },
 ];
 
 export function findUser(id: string, password: string): User | null {

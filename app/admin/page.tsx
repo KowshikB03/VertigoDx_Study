@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
 import { getAllAnswers, getAllFeedback } from "@/lib/db";
 import { VIDEOS, videoUrl } from "@/lib/videos";
+import { ANSWER_KEY } from "@/lib/answerKey";
+import { getDetails } from "@/lib/videoDetails";
 import AdminTable from "./AdminTable";
 import LogoutButton from "./LogoutButton";
 import { Logo } from "../components/Brand";
@@ -19,11 +21,20 @@ export default async function AdminPage() {
   const testers = new Set(rows.map((r) => r.user_id)).size;
   const completedVideos = rows.filter((r) => r.final_submission_timestamp).length;
 
-  const videoLibrary = VIDEOS.map((v) => ({
-    id: v.id,
-    url: videoUrl(v.cloudinaryId),
-    position: v.position,
-  }));
+  const videoLibrary = VIDEOS.map((v) => {
+    const key = ANSWER_KEY[v.id];
+    const det = getDetails(v.id);
+    return {
+      id: v.id,
+      url: videoUrl(v.cloudinaryId),
+      position: v.position,
+      duration: det?.duration ?? null,
+      answerA: key?.a ?? null,
+      // 8D-style videos have two 1b answers; show both.
+      answerB: key ? (key.bMulti ? key.bMulti.join("; ") : key.b) : null,
+      answerC: key ? key.c.join("; ") : null,
+    };
+  });
 
   return (
     <main style={{ minHeight: "100vh", padding: "28px 32px" }}>

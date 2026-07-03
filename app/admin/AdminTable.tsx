@@ -6,7 +6,7 @@ import { VIDEO_ORDER } from "@/lib/videos";
 import { isCorrectSingle, points1a, points1b, points1c, maxPoints, isManeuverInKey, isOtolithInKey, OTOLITH_MULTI_VIDEOS } from "@/lib/answerKey";
 import { FEEDBACK_QUESTIONS } from "@/lib/feedback";
 
-interface VideoLibItem { id: string; url: string; position: string; }
+interface VideoLibItem { id: string; url: string; position: string; duration: string | null; answerA: string | null; answerB: string | null; answerC: string | null; }
 
 const COLS: { key: keyof AnswerRow; label: string }[] = [
   { key: "video_id", label: "Video ID" },
@@ -233,12 +233,16 @@ function VideoLibraryView({ items }: { items: VideoLibItem[] }) {
   const [open, setOpen] = useState<string | null>(null);
 
   return (
-    <div style={{ border: "1px solid var(--line)", borderRadius: 10, background: "var(--bg-card)", overflow: "hidden" }}>
-      <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
+    <div style={{ border: "1px solid var(--line)", borderRadius: 10, background: "var(--bg-card)", overflow: "auto" }}>
+      <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13.5, whiteSpace: "nowrap" }}>
         <thead>
           <tr>
             <th style={thLib}>Video ID</th>
+            <th style={thLib}>Answer A (1a)</th>
+            <th style={thLib}>Duration</th>
             <th style={thLib}>Position</th>
+            <th style={thLib}>Answer B (1b)</th>
+            <th style={thLib}>Answer C (1c)</th>
             <th style={thLib}>Video</th>
           </tr>
         </thead>
@@ -247,7 +251,11 @@ function VideoLibraryView({ items }: { items: VideoLibItem[] }) {
             <Fragment key={v.id}>
               <tr>
                 <td style={{ ...tdLib, color: "var(--accent)", fontFamily: "var(--font-mono), monospace", fontWeight: 600 }}>{v.id}</td>
-                <td style={{ ...tdLib, color: "var(--ink-dim)", fontSize: 13 }}>{v.position}</td>
+                <td style={{ ...tdLib, color: "#000", fontSize: 13 }}>{v.answerA ?? "—"}</td>
+                <td style={{ ...tdLib, color: "#000", fontSize: 13 }}>{v.duration ? `${v.duration} sec` : "—"}</td>
+                <td style={{ ...tdLib, color: "#000", fontSize: 13 }}>{v.position}</td>
+                <td style={{ ...tdLib, color: "#000", fontSize: 13 }}>{v.answerB ?? "—"}</td>
+                <td style={{ ...tdLib, color: "#000", fontSize: 13 }}>{v.answerC ?? "—"}</td>
                 <td style={tdLib}>
                   {v.url ? (
                     <button
@@ -257,13 +265,13 @@ function VideoLibraryView({ items }: { items: VideoLibItem[] }) {
                       {open === v.id ? "Hide" : "▶ Play"}
                     </button>
                   ) : (
-                    <span style={{ color: "var(--ink-faint)", fontSize: 13 }}>No video yet</span>
+                    <span style={{ color: "#000", fontSize: 13 }}>No video yet</span>
                   )}
                 </td>
               </tr>
               {open === v.id && v.url && (
                 <tr>
-                  <td colSpan={3} style={{ padding: "0 14px 18px", borderBottom: "1px solid var(--line-soft)" }}>
+                  <td colSpan={7} style={{ padding: "0 14px 18px", borderBottom: "1px solid var(--line-soft)" }}>
                     <video src={v.url} controls style={{ width: "100%", maxWidth: 640, borderRadius: 10, background: "#000", display: "block" }} />
                   </td>
                 </tr>
