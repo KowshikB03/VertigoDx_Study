@@ -30,7 +30,7 @@ export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
   "14UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Cupula (PC): Left", c: ["Semont Maneuver Left", "Head Shakes / Mastoid Vibration"] },
   "17LHN": { a: "Left-beating", b: "Horizontal Canal (HC): Left", c: ["BBQ Roll (Lempert) Left", "Casani Maneuver Left"] },
   "8UCC": { a: "Up-beating Torsional Counter Clockwise", b: "Posterior Canal (PC): Right", c: ["Epley Maneuver Right", "Semont Maneuver Right"] },
-  "2D": { a: "Down-beating Non-Torsional", b: "Anterior Cupula (AC): Left", c: ["Reverse Semont Maneuver Left", "Yacovino Maneuver"] },
+  "2D": { a: "Down-beating Non-Torsional", b: "Anterior Canal (AC): Left", c: ["Reverse Semont Maneuver Left", "Yacovino Maneuver"] },
   "23LHN": { a: "Right-beating", b: "Horizontal Cupula (HC): Left", c: ["Gufoni Maneuver Left", "Kim Maneuver Left"] },
   "3D": { a: "Down-beating Non-Torsional", b: "Anterior Cupula (AC): Right", c: ["Reverse Semont Maneuver Right", "Head Shakes / Mastoid Vibration"] },
   "13UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Canal (PC): Left", c: ["Epley Maneuver Left", "Semont Maneuver Left"] },

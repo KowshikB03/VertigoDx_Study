@@ -369,7 +369,26 @@ function cellColor(key: keyof AnswerRow, r: AnswerRow): string {
 function formatCell(key: keyof AnswerRow, val: unknown): string {
   if (val === null || val === undefined || val === "") return "—";
   if (typeof val === "number" && key.includes("time")) return val.toFixed(1);
+  // Submission timestamps are stored as UTC ("YYYY-MM-DD HH:MM:SS"); show them in
+  // US Eastern time (America/New_York handles EST/EDT daylight saving automatically).
+  if (key === "final_submission_timestamp" || key === "initial_submission_timestamp") {
+    return toEastern(String(val));
+  }
   return String(val);
+}
+
+// Convert a UTC datetime string from SQLite into a readable US Eastern timestamp.
+function toEastern(utc: string): string {
+  // SQLite gives "2026-06-19 20:52:39" (UTC, no zone). Append 'Z' so it parses as UTC.
+  const iso = utc.includes("T") ? utc : utc.replace(" ", "T") + "Z";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return utc; // fall back to raw string if unparseable
+  return d.toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: false,
+  }) + " ET";
 }
 
 // Per-row points for 1a (final), 1b, 1c, and their per-question total.
@@ -431,7 +450,11 @@ function downloadCsv(rows: AnswerRow[]) {
 
   const header = csvCols.map((c) => esc(c.label)).join(",");
   const lines = sorted.map((r) =>
-    csvCols.map((c) => esc(r[c.key])).join(",")
+    csvCols.map((c) => {
+      const isTs = c.key === "final_submission_timestamp" || c.key === "initial_submission_timestamp";
+      const raw = r[c.key];
+      return esc(isTs && raw ? toEastern(String(raw)) : raw);
+    }).join(",")
   );
   const csv = [header, ...lines].join("\n");
 

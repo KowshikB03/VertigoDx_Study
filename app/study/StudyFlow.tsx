@@ -454,8 +454,8 @@ function QuestionBlock({
         <span style={{ color: theme.text, fontWeight: 700, fontSize: 16, textDecoration: "underline" }}>
           Question {seqNum}{qid}:
         </span>
-        <div style={{ width: 240, maxWidth: "100%" }}>
-          <ImagePlaceholder src={cardImg} alt={cardAlt} label={cardImg} height={200} />
+        <div style={{ width: 120, maxWidth: "100%" }}>
+          <ImagePlaceholder src={cardImg} alt={cardAlt} label={cardImg} height={100} />
         </div>
       </div>
 
