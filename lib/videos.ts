@@ -72,7 +72,7 @@ export const VIDEO_ORDER: string[] = VIDEOS.map((v) => v.id);
 // ============================================================
 export const DEMO_VIDEO: VideoConfig = {
   id: "31UCC",
-  cloudinaryId: "PENDING",
+  cloudinaryId: "https://res.cloudinary.com/djlppkq0b/video/upload/v1783456167/UTN_C_lt60s_Deep_Head_Hang_Janet_W_09_26_2025_copy_2_1_ydf7fr.mov",
   position: "Right Dix Hallpike",
 };
 
