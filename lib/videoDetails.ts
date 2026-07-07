@@ -30,7 +30,7 @@ export const VIDEO_DETAILS: Record<string, VideoDetails> = {
   "17LHN": { positions: ["Supine Roll Left", "Dix Hallpike Left"], latency: "2", duration: "50", reversal: "No", dizziness: "Yes", nausea: "Yes", comments: null },
   "8UCC": { positions: ["Supine", "Supine Roll Right", "Dix Hallpike Right"], latency: "0", duration: "10", reversal: "Yes", dizziness: "Yes", nausea: "No", comments: null },
   "2D": { positions: ["Supine Roll Left","Deep Head Hang"], latency: "0", duration: "30", reversal: "No", dizziness: "Yes", nausea: "No", comments: null },
-  "23LHN": { positions: ["Supine Roll Left"], latency: "5", duration: "10", reversal: "No", dizziness: "Yes", nausea: "No", comments: "Stronger Ageotropic HN in R Supine Roll" },
+  "23LHN": { positions: ["Supine Roll Left"], latency: "5", duration: "100", reversal: "No", dizziness: "Yes", nausea: "No", comments: "Stronger Ageotropic HN in R Supine Roll" },
   "3D": { positions: ["Deep Head Hang", "Supine Roll Right", "Dix Hallpike Right"], latency: "0", duration: "85", reversal: "No", dizziness: "Yes", nausea: "Yes", comments: null },
   "13UC": { positions: ["Deep Head Hang", "Dix Hallpike Left"], latency: "5", duration: "10", reversal: "Yes", dizziness: "Yes", nausea: "No", comments: null },
   "20LHN": { positions: ["Supine Roll Left"], latency: "2", duration: "45", reversal: "Yes", dizziness: "Yes", nausea: "Yes", comments: "In Bow test nystagmus is Left beating, and in supine nystagmus reverses to Right Horizontal nystagmus for 60s" },
