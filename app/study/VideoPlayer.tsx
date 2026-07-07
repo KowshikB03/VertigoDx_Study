@@ -11,6 +11,8 @@ interface Props {
   replayCount: number;
   maxReplays: number;
   onReplay: () => void;
+  // Instructional caption shown before first play (differs for Ai vs Aii/B/C).
+  captionText?: string;
 }
 
 export default function VideoPlayer({
@@ -20,6 +22,7 @@ export default function VideoPlayer({
   replayCount,
   maxReplays,
   onReplay,
+  captionText,
 }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
   const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
@@ -87,7 +90,7 @@ export default function VideoPlayer({
       <div style={styles.controls}>
         {!hasPlayedOnce ? (
           <span style={styles.hint}>
-            The first viewing plays once. Replay unlocks after your initial answer.
+            {captionText || "The first viewing plays once. Replay unlocks after your initial answer."}
           </span>
         ) : !replayEnabled ? (
           <span style={styles.hint}>

@@ -61,6 +61,21 @@ export const VIDEOS: VideoConfig[] = [
 export const TOTAL_VIDEOS = VIDEOS.length;
 export const VIDEO_ORDER: string[] = VIDEOS.map((v) => v.id);
 
+// ============================================================
+// DEMO VIDEO — a single fixed practice video (31UCC). It is deliberately
+// NOT part of the VIDEOS array, so it never appears in any tester's study,
+// never counts toward VIDEO_ORDER / TOTAL_VIDEOS, and is shown only on the
+// demo page and last in the admin video library.
+//
+// >>> TO SET THE VIDEO LINK: replace "PENDING" below with the Cloudinary URL
+//     (or public ID) for the demo clip. Until then it shows "No video yet".
+// ============================================================
+export const DEMO_VIDEO: VideoConfig = {
+  id: "31UCC",
+  cloudinaryId: "PENDING",
+  position: "Right Dix Hallpike",
+};
+
 export function getVideo(id: string): VideoConfig | undefined {
   return VIDEOS.find((v) => v.id === id);
 }

@@ -91,6 +91,11 @@ export default function StudyFlow({
       stepStart.current = Date.now();
     }
     if (step === "final") setReplayEnabled(true);
+    // When a new question step opens, jump to the top of the page so the
+    // clinician always starts reading from the top (not where they clicked submit).
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
   }, [step]);
 
   async function post(payload: Record<string, unknown>) {
@@ -234,6 +239,11 @@ export default function StudyFlow({
             replayCount={replayCount}
             maxReplays={MAX_REPLAYS}
             onReplay={onReplay}
+            captionText={
+              step === "initial"
+                ? "First pass, watch video - no replay available - lock in your Initial answer."
+                : `Second pass of the same questions: replay function unlocks and you can have ${MAX_REPLAYS} replays - lock in your Final answer.`
+            }
           />
           {/* Clinical info revealed only from 1b onward */}
           {(step === "otolith" || step === "maneuver") && (
@@ -249,7 +259,7 @@ export default function StudyFlow({
           <StepDots step={step} />
 
           {step === "initial" && (
-            <QuestionBlock qid="A" cardImg="/study/card-a-initial.png" cardAlt="Initial Classification" seqNum={sequenceNumber}>
+            <QuestionBlock qid="A" roman="i" cardImg="/study/card-a-initial.png" cardAlt="Initial Classification" seqNum={sequenceNumber}>
               <RadioGroup name="init" options={NYSTAGMUS_OPTIONS} value={initClass} onChange={setInitClass} />
               <ConfidenceSlider value={initConf} onChange={setInitConf} />
               <ErrLine err={err} />
@@ -258,7 +268,7 @@ export default function StudyFlow({
           )}
 
           {step === "final" && (
-            <QuestionBlock qid="A" cardImg="/study/card-a-final.png" cardAlt="Final Classification (Submit)" seqNum={sequenceNumber} heading={`Keep or change Answer ${sequenceNumber}A to be your FINAL answer:`}>
+            <QuestionBlock qid="A" roman="ii" cardImg="/study/card-a-final.png" cardAlt="Final Classification (Submit)" seqNum={sequenceNumber} heading={`Keep or change Answer ${sequenceNumber}Aii to be your FINAL answer:`}>
               <RadioGroup name="final" options={NYSTAGMUS_OPTIONS} value={finalClass} onChange={setFinalClass} />
               <ConfidenceSlider value={finalConf} onChange={setFinalConf} />
               <ErrLine err={err} />
@@ -436,9 +446,10 @@ const Q_THEME: Record<string, { bg: string; text: string }> = {
 // A question step: shows the colored QUESTION badge card, a purple "Question 1X:"
 // link-style title, an optional bold heading + sub, then the inputs.
 function QuestionBlock({
-  qid, cardImg, cardAlt, seqNum, heading, headingSub, children,
+  qid, roman, cardImg, cardAlt, seqNum, heading, headingSub, children,
 }: {
   qid: "A" | "B" | "C";
+  roman?: string; // "i" or "ii" for the A steps; rendered in red
   cardImg: string;
   cardAlt: string;
   seqNum: number;
@@ -452,7 +463,7 @@ function QuestionBlock({
       {/* Title link + card image row */}
       <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
         <span style={{ color: theme.text, fontWeight: 700, fontSize: 16, textDecoration: "underline" }}>
-          Question {seqNum}{qid}:
+          Question {seqNum}{qid}{roman ? <span style={{ color: "#dc2626" }}>{roman}</span> : null}:
         </span>
         <div style={{ width: 170, maxWidth: "100%" }}>
           <ImagePlaceholder src={cardImg} alt={cardAlt} label={cardImg} height={140} />

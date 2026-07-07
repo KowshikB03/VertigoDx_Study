@@ -15,6 +15,8 @@ export interface VideoDetails {
 }
 
 export const VIDEO_DETAILS: Record<string, VideoDetails> = {
+  // Demo-only video (31UCC). Not used in any tester's study.
+  "31UCC": { positions: ["Right Dix Hallpike"], latency: null, duration: "15", reversal: "Yes", dizziness: "Yes", nausea: "No", comments: null },
   "16UC": { positions: ["Dix Hallpike Left"], latency: "5", duration: "10", reversal: "Yes", dizziness: "Yes", nausea: "No", comments: null },
   "27RHN": { positions: ["Supine Roll Right"], latency: "2", duration: "50", reversal: "Yes", dizziness: "Yes", nausea: "Yes", comments: null },
   "5D": { positions: ["Deep Head Hang"], latency: "0", duration: "10", reversal: "No", dizziness: "Yes", nausea: "Yes", comments: null },

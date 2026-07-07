@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { currentUser } from "@/lib/session";
-import { VIDEOS, videoUrl, TOTAL_VIDEOS } from "@/lib/videos";
+import { DEMO_VIDEO, videoUrl, TOTAL_VIDEOS } from "@/lib/videos";
 import StudyFlow from "../StudyFlow";
 import { getDetails } from "@/lib/videoDetails";
 
@@ -12,9 +11,8 @@ export default async function DemoPage() {
   if (!user) redirect("/login");
   if (user.role !== "tester") redirect("/admin");
 
-  // Pick a random video for the demo each time.
-  const playable = VIDEOS.filter((v) => videoUrl(v.cloudinaryId));
-  const pick = playable[Math.floor(Math.random() * playable.length)] ?? VIDEOS[0];
+  // Fixed demo video (31UCC) — never one of the real test videos.
+  const pick = DEMO_VIDEO;
 
   return (
     <main style={{ minHeight: "100vh" }}>

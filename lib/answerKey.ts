@@ -18,6 +18,8 @@ export const OTOLITH_MULTI_VIDEOS = new Set<string>(["8D"]);
 export const MAX_OTOLITH_MULTI = 2;
 
 export const ANSWER_KEY: Record<string, AnswerKeyEntry> = {
+  // Demo-only video (31UCC). Not used in any tester's study.
+  "31UCC": { a: "Up-beating Torsional Counter Clockwise", b: "Posterior Canal (PC): Right", c: ["Epley Maneuver Right", "Semont Maneuver Right"] },
   "16UC": { a: "Up-beating Torsional Clockwise", b: "Posterior Canal (PC): Left", c: ["Epley Maneuver Left", "Semont Maneuver Left"] },
   "27RHN": { a: "Right-beating", b: "Horizontal Canal (HC): Right", c: ["BBQ Roll (Lempert) Right", "Appiani Maneuver Right", "Casani Maneuver Right"] },
   "5D": { a: "Down-beating Torsional Counter Clockwise", b: "Anterior Canal (AC): Left", c: ["Yacovino Maneuver", "Reverse Semont Maneuver Left"] },

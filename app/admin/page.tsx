@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
 import { getAllAnswers, getAllFeedback } from "@/lib/db";
-import { VIDEOS, videoUrl } from "@/lib/videos";
+import { VIDEOS, DEMO_VIDEO, videoUrl } from "@/lib/videos";
 import { ANSWER_KEY } from "@/lib/answerKey";
 import { getDetails } from "@/lib/videoDetails";
 import AdminTable from "./AdminTable";
@@ -21,11 +21,11 @@ export default async function AdminPage() {
   const testers = new Set(rows.map((r) => r.user_id)).size;
   const completedVideos = rows.filter((r) => r.final_submission_timestamp).length;
 
-  const videoLibrary = VIDEOS.map((v) => {
+  const buildLibItem = (v: typeof VIDEOS[number], isDemo = false) => {
     const key = ANSWER_KEY[v.id];
     const det = getDetails(v.id);
     return {
-      id: v.id,
+      id: isDemo ? `${v.id} (demo)` : v.id,
       url: videoUrl(v.cloudinaryId),
       position: v.position,
       duration: det?.duration ?? null,
@@ -34,7 +34,11 @@ export default async function AdminPage() {
       answerB: key ? (key.bMulti ? key.bMulti.join("; ") : key.b) : null,
       answerC: key ? key.c.join("; ") : null,
     };
-  });
+  };
+  const videoLibrary = [
+    ...VIDEOS.map((v) => buildLibItem(v)),
+    buildLibItem(DEMO_VIDEO, true), // demo video always last
+  ];
 
   return (
     <main style={{ minHeight: "100vh", padding: "28px 32px" }}>
