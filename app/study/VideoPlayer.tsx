@@ -11,8 +11,8 @@ interface Props {
   replayCount: number;
   maxReplays: number;
   onReplay: () => void;
-  // Instructional caption shown before first play (differs for Ai vs Aii/B/C).
-  captionText?: string;
+  // Instructional caption lines shown before first play (one per line, no wrap).
+  captionLines?: string[];
 }
 
 export default function VideoPlayer({
@@ -22,7 +22,7 @@ export default function VideoPlayer({
   replayCount,
   maxReplays,
   onReplay,
-  captionText,
+  captionLines,
 }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
   const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
@@ -89,9 +89,14 @@ export default function VideoPlayer({
 
       <div style={styles.controls}>
         {!hasPlayedOnce ? (
-          <span style={styles.hint}>
-            {captionText || "The first viewing plays once. Replay unlocks after your initial answer."}
-          </span>
+          <div style={styles.hintBlock}>
+            {(captionLines && captionLines.length
+              ? captionLines
+              : ["The first viewing plays once. Replay unlocks after your initial answer."]
+            ).map((line, i) => (
+              <span key={i} style={styles.hintLine}>{line}</span>
+            ))}
+          </div>
         ) : !replayEnabled ? (
           <span style={styles.hint}>
             Submit your initial answer below to unlock replays.
@@ -155,6 +160,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   controls: { minHeight: 40, display: "flex", alignItems: "center" },
   hint: { fontSize: 13, color: "#000", textAlign: "center", maxWidth: 380 },
+  hintBlock: { display: "flex", flexDirection: "column", gap: 4, alignItems: "center", width: "100%", overflowX: "auto" },
+  hintLine: { fontSize: 12.5, color: "#000", textAlign: "center", whiteSpace: "nowrap", fontWeight: 500 },
   replayBtn: {
     background: "transparent",
     border: "1px solid var(--accent)",

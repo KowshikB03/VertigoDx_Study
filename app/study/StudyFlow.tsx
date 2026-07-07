@@ -239,11 +239,10 @@ export default function StudyFlow({
             replayCount={replayCount}
             maxReplays={MAX_REPLAYS}
             onReplay={onReplay}
-            captionText={
-              step === "initial"
-                ? "First pass, watch video - no replay available - lock in your Initial answer."
-                : `Second pass of the same questions: replay function unlocks and you can have ${MAX_REPLAYS} replays - lock in your Final answer.`
-            }
+            captionLines={[
+              "Ai - First pass, watch video - no replay available - lock in your Initial answer",
+              `Aii - Second pass of the same questions: replay function unlocks and you can have ${MAX_REPLAYS} replays - lock in your Final answer`,
+            ]}
           />
           {/* Clinical info revealed only from 1b onward */}
           {(step === "otolith" || step === "maneuver") && (
@@ -445,6 +444,25 @@ const Q_THEME: Record<string, { bg: string; text: string }> = {
 
 // A question step: shows the colored QUESTION badge card, a purple "Question 1X:"
 // link-style title, an optional bold heading + sub, then the inputs.
+// Renders a string but colors any Roman-numeral suffix after "A" (the "i"/"ii"
+// in labels like "1Aii") in red, matching the question title styling.
+function redRoman(text: string): React.ReactNode {
+  // Match a digit(s) + "A" + one or more "i", capturing the i-run.
+  const re = /(\d+A)(i+)/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let key = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    parts.push(m[1]);
+    parts.push(<span key={key++} style={{ color: "#dc2626" }}>{m[2]}</span>);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts.length ? parts : text;
+}
+
 function QuestionBlock({
   qid, roman, cardImg, cardAlt, seqNum, heading, headingSub, children,
 }: {
@@ -473,7 +491,7 @@ function QuestionBlock({
       {/* Optional bold heading + sub, in the question's theme color */}
       {heading && (
         <div>
-          <h2 style={{ fontSize: 18, color: theme.text, textDecoration: "underline", marginBottom: 6 }}>{heading}</h2>
+          <h2 style={{ fontSize: 18, color: theme.text, textDecoration: "underline", marginBottom: 6 }}>{redRoman(heading)}</h2>
           {headingSub && <p style={{ color: theme.text, fontSize: 13.5, lineHeight: 1.5, fontWeight: 500 }}>{headingSub}</p>}
         </div>
       )}
