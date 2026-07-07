@@ -88,7 +88,7 @@ export default function VideoPlayer({
       </div>
 
       <div style={styles.controls}>
-        {!hasPlayedOnce ? (
+        {!replayEnabled ? (
           <div style={styles.hintBlock}>
             {(captionLines && captionLines.length
               ? captionLines
@@ -97,10 +97,6 @@ export default function VideoPlayer({
               <span key={i} style={styles.hintLine}>{line}</span>
             ))}
           </div>
-        ) : !replayEnabled ? (
-          <span style={styles.hint}>
-            Submit your initial answer below to unlock replays.
-          </span>
         ) : (
           <button
             onClick={doReplay}
