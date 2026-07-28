@@ -290,6 +290,82 @@ function VideoLibraryView({ items }: { items: VideoLibItem[] }) {
   );
 }
 
+// One editable clinician/tester row. Click "Edit" to turn the name/email cells
+// into inputs, then "Save" to persist to the database (or "Cancel").
+function EditableCredRow({ user }: { user: User }) {
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [first, setFirst] = useState(user.firstName || "");
+  const [last, setLast] = useState(user.lastName || "");
+  const [email, setEmail] = useState(user.email || "");
+  // The saved values currently shown (so the row updates without a full reload).
+  const [saved, setSaved] = useState({ first: user.firstName || "", last: user.lastName || "", email: user.email || "" });
+  const [err, setErr] = useState("");
+
+  async function save() {
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch("/api/admin/user-details", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, firstName: first, lastName: last, email }),
+      });
+      const data = await res.json();
+      if (!data.ok) { setErr(data.error || "Save failed."); setBusy(false); return; }
+      setSaved({ first: first.trim(), last: last.trim(), email: email.trim() });
+      setEditing(false);
+      setBusy(false);
+    } catch {
+      setErr("Network error."); setBusy(false);
+    }
+  }
+
+  function cancel() {
+    setFirst(saved.first); setLast(saved.last); setEmail(saved.email);
+    setErr(""); setEditing(false);
+  }
+
+  const dash = <span style={{ color: "var(--ink-faint)" }}>—</span>;
+  const inputStyle: React.CSSProperties = { width: "100%", minWidth: 110, padding: "6px 8px", fontSize: 13, border: "1px solid var(--line)", borderRadius: 6 };
+
+  return (
+    <tr>
+      <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", fontWeight: 600, color: "var(--accent)" }}>{user.id}</td>
+      <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", color: "#000" }}>{user.password}</td>
+      {editing ? (
+        <>
+          <td style={tdLib}><input value={first} onChange={(e) => setFirst(e.target.value)} style={inputStyle} placeholder="First name" /></td>
+          <td style={tdLib}><input value={last} onChange={(e) => setLast(e.target.value)} style={inputStyle} placeholder="Last name" /></td>
+          <td style={tdLib}><input value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} placeholder="email@example.com" /></td>
+          <td style={tdLib}>
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <button onClick={save} disabled={busy} style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12.5, fontWeight: 600, cursor: busy ? "wait" : "pointer" }}>
+                {busy ? "Saving…" : "Save"}
+              </button>
+              <button onClick={cancel} disabled={busy} style={{ background: "transparent", color: "var(--ink-dim)", border: "1px solid var(--line)", borderRadius: 6, padding: "6px 12px", fontSize: 12.5, cursor: "pointer" }}>
+                Cancel
+              </button>
+              {err && <span style={{ color: "var(--danger)", fontSize: 12 }}>{err}</span>}
+            </div>
+          </td>
+        </>
+      ) : (
+        <>
+          <td style={{ ...tdLib, color: "#000" }}>{saved.first || dash}</td>
+          <td style={{ ...tdLib, color: "#000" }}>{saved.last || dash}</td>
+          <td style={{ ...tdLib, color: "#000" }}>{saved.email || dash}</td>
+          <td style={tdLib}>
+            <button onClick={() => setEditing(true)} style={{ background: "transparent", color: "var(--accent)", border: "1px solid var(--accent)", borderRadius: 6, padding: "6px 14px", fontSize: 12.5, fontWeight: 500, cursor: "pointer" }}>
+              Edit
+            </button>
+          </td>
+        </>
+      )}
+    </tr>
+  );
+}
+
 // ---- CREDENTIALS TAB ----
 // Lists every account's login. Admin shows only username + password.
 // Clinicians/testers also show optional first/last name + email (blank until
@@ -350,17 +426,12 @@ function CredentialsView({ users }: { users: User[] }) {
                 <th style={thLib}>First Name</th>
                 <th style={thLib}>Last Name</th>
                 <th style={thLib}>Contact Email</th>
+                <th style={thLib}>Action</th>
               </tr>
             </thead>
             <tbody>
               {nonAdmin.map((u) => (
-                <tr key={u.id}>
-                  <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", fontWeight: 600, color: "var(--accent)" }}>{u.id}</td>
-                  <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", color: "#000" }}>{u.password}</td>
-                  <td style={{ ...tdLib, color: "#000" }}>{u.firstName || <span style={{ color: "var(--ink-faint)" }}>—</span>}</td>
-                  <td style={{ ...tdLib, color: "#000" }}>{u.lastName || <span style={{ color: "var(--ink-faint)" }}>—</span>}</td>
-                  <td style={{ ...tdLib, color: "#000" }}>{u.email || <span style={{ color: "var(--ink-faint)" }}>—</span>}</td>
-                </tr>
+                <EditableCredRow key={u.id} user={u} />
               ))}
             </tbody>
           </table>

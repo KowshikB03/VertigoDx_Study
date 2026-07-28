@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
-import { getAllAnswers, getAllFeedback } from "@/lib/db";
+import { getAllAnswers, getAllFeedback, getAllUserDetails } from "@/lib/db";
 import { VIDEOS, DEMO_VIDEO, videoUrl } from "@/lib/videos";
 import { ANSWER_KEY } from "@/lib/answerKey";
 import { getDetails } from "@/lib/videoDetails";
@@ -18,6 +18,18 @@ export default async function AdminPage() {
 
   const rows = await getAllAnswers();
   const feedback = await getAllFeedback();
+  const details = await getAllUserDetails();
+  // Merge DB-stored names/email over the static user list (DB wins).
+  const detailMap = new Map(details.map((d) => [d.user_id, d]));
+  const usersWithDetails = USERS.map((u) => {
+    const d = detailMap.get(u.id);
+    return {
+      ...u,
+      firstName: d?.first_name ?? "",
+      lastName: d?.last_name ?? "",
+      email: d?.email ?? "",
+    };
+  });
 
   const testers = new Set(rows.map((r) => r.user_id)).size;
   const completedVideos = rows.filter((r) => r.final_submission_timestamp).length;
@@ -61,7 +73,7 @@ export default async function AdminPage() {
         <Stat label="Completed Q-sets" value={completedVideos} />
       </div>
 
-      <AdminTable rows={rows} videoLibrary={videoLibrary} feedback={feedback} users={USERS} />
+      <AdminTable rows={rows} videoLibrary={videoLibrary} feedback={feedback} users={usersWithDetails} />
     </main>
   );
 }

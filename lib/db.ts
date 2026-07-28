@@ -48,6 +48,13 @@ function ensureTable(): Promise<void> {
           answers_json TEXT,
           submitted_at TEXT DEFAULT (datetime('now'))
         );`,
+        `CREATE TABLE IF NOT EXISTS user_details (
+          user_id TEXT PRIMARY KEY,
+          first_name TEXT,
+          last_name TEXT,
+          email TEXT,
+          updated_at TEXT DEFAULT (datetime('now'))
+        );`,
       ])
       .then(() => undefined);
   }
@@ -267,4 +274,34 @@ export async function getAllFeedback(): Promise<{ user_id: string; scores: numbe
 
 export async function hasFeedback(userId: string): Promise<boolean> {
   return (await getFeedback(userId)) !== null;
+}
+// ---- User details (admin-editable first/last name + email per account) ----
+export interface UserDetail {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+}
+
+export async function getAllUserDetails(): Promise<UserDetail[]> {
+  await ensureTable();
+  const res = await db.execute("SELECT user_id, first_name, last_name, email FROM user_details");
+  return res.rows as unknown as UserDetail[];
+}
+
+export async function saveUserDetail(p: {
+  userId: string; firstName: string; lastName: string; email: string;
+}): Promise<{ ok: true }> {
+  await ensureTable();
+  await db.execute({
+    sql: `INSERT INTO user_details (user_id, first_name, last_name, email, updated_at)
+          VALUES (?, ?, ?, ?, datetime('now'))
+          ON CONFLICT(user_id) DO UPDATE SET
+            first_name = excluded.first_name,
+            last_name  = excluded.last_name,
+            email      = excluded.email,
+            updated_at = excluded.updated_at`,
+    args: [p.userId, p.firstName, p.lastName, p.email],
+  });
+  return { ok: true };
 }
