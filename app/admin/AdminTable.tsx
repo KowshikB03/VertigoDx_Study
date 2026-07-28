@@ -5,6 +5,7 @@ import type { AnswerRow } from "@/lib/db";
 import { VIDEO_ORDER } from "@/lib/videos";
 import { isCorrectSingle, points1a, points1b, points1c, maxPoints, isManeuverInKey, isOtolithInKey, OTOLITH_MULTI_VIDEOS } from "@/lib/answerKey";
 import { FEEDBACK_QUESTIONS } from "@/lib/feedback";
+import type { User } from "@/lib/users";
 
 interface VideoLibItem { id: string; url: string; position: string; duration: string | null; answerA: string | null; answerB: string | null; answerC: string | null; }
 
@@ -30,12 +31,14 @@ export default function AdminTable({
   rows,
   videoLibrary,
   feedback,
+  users,
 }: {
   rows: AnswerRow[];
   videoLibrary: VideoLibItem[];
   feedback: { user_id: string; scores: number[] }[];
+  users: User[];
 }) {
-  const [tab, setTab] = useState<"answers" | "videos">("answers");
+  const [tab, setTab] = useState<"answers" | "videos" | "credentials">("answers");
   const [filter, setFilter] = useState("");
 
   // Quick lookup: user_id -> their feedback scores.
@@ -49,6 +52,7 @@ export default function AdminTable({
         <div style={{ display: "flex", gap: 4, background: "var(--bg-elev)", padding: 4, borderRadius: 10, border: "1px solid var(--line)" }}>
           <TabBtn active={tab === "answers"} onClick={() => setTab("answers")}>Answers</TabBtn>
           <TabBtn active={tab === "videos"} onClick={() => setTab("videos")}>Video Library</TabBtn>
+          <TabBtn active={tab === "credentials"} onClick={() => setTab("credentials")}>Credentials</TabBtn>
         </div>
         {tab === "answers" && (
           <>
@@ -77,8 +81,10 @@ export default function AdminTable({
 
       {tab === "answers" ? (
         <AnswersView rows={rows} filter={filter} feedbackByUser={feedbackByUser} />
-      ) : (
+      ) : tab === "videos" ? (
         <VideoLibraryView items={videoLibrary} />
+      ) : (
+        <CredentialsView users={users} />
       )}
     </div>
   );
@@ -282,6 +288,110 @@ function VideoLibraryView({ items }: { items: VideoLibItem[] }) {
       </table>
     </div>
   );
+}
+
+// ---- CREDENTIALS TAB ----
+// Lists every account's login. Admin shows only username + password.
+// Clinicians/testers also show optional first/last name + email (blank until
+// you fill them in lib/users.ts). Includes a CSV download of the whole list.
+function CredentialsView({ users }: { users: User[] }) {
+  const nonAdmin = users.filter((u) => u.role !== "admin");
+  const admins = users.filter((u) => u.role === "admin");
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button
+          onClick={() => downloadCredentialsCsv(users)}
+          style={{
+            background: "var(--accent)", color: "#fff", border: "none",
+            borderRadius: 8, padding: "10px 16px", fontSize: 13.5, fontWeight: 500, cursor: "pointer",
+          }}
+        >
+          ↓ Download Credentials CSV
+        </button>
+      </div>
+
+      {/* Admin(s): username + password only */}
+      <div>
+        <h2 style={{ fontSize: 16, marginBottom: 10 }}>Admin</h2>
+        <div style={{ overflowX: "auto", border: "1px solid var(--line)", borderRadius: 10, background: "var(--bg-card)" }}>
+          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13.5 }}>
+            <thead>
+              <tr>
+                <th style={thLib}>Username</th>
+                <th style={thLib}>Password</th>
+              </tr>
+            </thead>
+            <tbody>
+              {admins.map((u) => (
+                <tr key={u.id}>
+                  <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", fontWeight: 600, color: "#000" }}>{u.id}</td>
+                  <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", color: "#000" }}>{u.password}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Clinicians + testers: username, password, first/last name, email */}
+      <div>
+        <h2 style={{ fontSize: 16, marginBottom: 10 }}>
+          Clinicians &amp; Testers{" "}
+          <span style={{ color: "var(--ink-dim)", fontSize: 13, fontWeight: 400 }}>({nonAdmin.length})</span>
+        </h2>
+        <div style={{ overflowX: "auto", border: "1px solid var(--line)", borderRadius: 10, background: "var(--bg-card)" }}>
+          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13.5, whiteSpace: "nowrap" }}>
+            <thead>
+              <tr>
+                <th style={thLib}>Username</th>
+                <th style={thLib}>Password</th>
+                <th style={thLib}>First Name</th>
+                <th style={thLib}>Last Name</th>
+                <th style={thLib}>Contact Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {nonAdmin.map((u) => (
+                <tr key={u.id}>
+                  <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", fontWeight: 600, color: "var(--accent)" }}>{u.id}</td>
+                  <td style={{ ...tdLib, fontFamily: "var(--font-mono), monospace", color: "#000" }}>{u.password}</td>
+                  <td style={{ ...tdLib, color: "#000" }}>{u.firstName || <span style={{ color: "var(--ink-faint)" }}>—</span>}</td>
+                  <td style={{ ...tdLib, color: "#000" }}>{u.lastName || <span style={{ color: "var(--ink-faint)" }}>—</span>}</td>
+                  <td style={{ ...tdLib, color: "#000" }}>{u.email || <span style={{ color: "var(--ink-faint)" }}>—</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// CSV of all credentials (admin included; blank name/email columns for admin).
+function downloadCredentialsCsv(users: User[]) {
+  const esc = (v: unknown): string => {
+    if (v === null || v === undefined) return "";
+    const s = String(v);
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  };
+  const header = ["Username", "Password", "Role", "First Name", "Last Name", "Contact Email"].join(",");
+  const lines = users.map((u) =>
+    [u.id, u.password, u.role, u.firstName ?? "", u.lastName ?? "", u.email ?? ""].map(esc).join(",")
+  );
+  const csv = [header, ...lines].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `smartvertigo_credentials_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 const thLib: React.CSSProperties = { textAlign: "left", padding: "13px 14px", color: "var(--ink-dim)", borderBottom: "1px solid var(--line)", background: "var(--bg-elev)", fontWeight: 500, fontSize: 13 };

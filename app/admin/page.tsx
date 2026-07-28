@@ -4,6 +4,7 @@ import { getAllAnswers, getAllFeedback } from "@/lib/db";
 import { VIDEOS, DEMO_VIDEO, videoUrl } from "@/lib/videos";
 import { ANSWER_KEY } from "@/lib/answerKey";
 import { getDetails } from "@/lib/videoDetails";
+import { USERS } from "@/lib/users";
 import AdminTable from "./AdminTable";
 import LogoutButton from "./LogoutButton";
 import { Logo } from "../components/Brand";
@@ -60,7 +61,7 @@ export default async function AdminPage() {
         <Stat label="Completed Q-sets" value={completedVideos} />
       </div>
 
-      <AdminTable rows={rows} videoLibrary={videoLibrary} feedback={feedback} />
+      <AdminTable rows={rows} videoLibrary={videoLibrary} feedback={feedback} users={USERS} />
     </main>
   );
 }
