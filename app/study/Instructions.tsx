@@ -1,6 +1,6 @@
 "use client";
 
-import { Logo } from "../../components/Brand";
+import { Logo } from "../components/Brand";
 
 // Full-screen intro: a centered video with normal controls (play/pause/seek/
 // volume), and a button underneath to continue to the demo questionnaire.
